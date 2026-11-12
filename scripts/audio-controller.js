@@ -444,28 +444,28 @@ export class CPRAudioController {
       label: "Street Exploration",
       fade: 2500,
       music: { playlists: ["NC Audio // Combat", "NC Audio // Clubs & Lounge"], match: /dreaming|future|will you/i, volume: 0.55 },
-      ambience: { playlists: ["NC Audio // Ambience"], match: /crowd|rain|city|traffic/i, volume: 0.65 },
-      weather: { playlists: ["NC Audio // Weather & Drones"], match: /skyline|wind/i, volume: 0.35 }
+      ambience: { playlists: ["NC Audio // Ambience"], match: /market|highway|sirens|ncart|crowd|rain|city|traffic/i, volume: 0.65 },
+      weather: { playlists: ["NC Audio // Weather & Drones"], match: /heavy rain|acid rain|foghorn|skyline|wind/i, volume: 0.40 }
     },
     stealth: {
       label: "Corp Stealth",
       fade: 3000,
       music: null,
-      ambience: { playlists: ["NC Audio // Ambience"], match: /bank|dirty|distant/i, volume: 0.50 },
-      weather: { playlists: ["NC Audio // Weather & Drones", "NC Audio // Netrunning"], match: /industrial|layer|white/i, volume: 0.55 }
+      ambience: { playlists: ["NC Audio // Ambience"], match: /arasaka|server|cooling|ripperdoc|bank|dirty|distant/i, volume: 0.55 },
+      weather: { playlists: ["NC Audio // Weather & Drones", "NC Audio // Netrunning"], match: /megabuilding|ventilation|substation|industrial|layer|white/i, volume: 0.55 }
     },
     afterlife: {
       label: "Fixer Lounge / Afterlife",
       fade: 2000,
       music: { playlists: ["NC Audio // Clubs & Lounge", "NC Audio // Combat"], match: /flowers|dreaming|future/i, volume: 0.75 },
-      ambience: { playlists: ["NC Audio // Ambience"], match: /crowd|bank|city/i, volume: 0.45 },
+      ambience: { playlists: ["NC Audio // Ambience"], match: /afterlife|murmur|crowd|bank|city/i, volume: 0.50 },
       weather: null
     },
     combat: {
       label: "Cyberpsycho Combat",
       fade: 2000,
       music: { playlists: ["NC Audio // Combat"], match: /against|drive|will you/i, volume: 0.85 },
-      ambience: { playlists: ["NC Audio // Ambience"], match: /horns|dirty|traffic/i, volume: 0.45 },
+      ambience: { playlists: ["NC Audio // Ambience"], match: /sirens|highway|horns|dirty|traffic/i, volume: 0.45 },
       weather: null
     },
     netrun: {
@@ -473,14 +473,14 @@ export class CPRAudioController {
       fade: 2000,
       music: { playlists: ["NC Audio // Combat", "NC Audio // Clubs & Lounge"], match: /cyborg|future|dreaming/i, volume: 0.55 },
       ambience: null,
-      weather: { playlists: ["NC Audio // Netrunning", "NC Audio // Weather & Drones"], match: /white|industrial|layer/i, volume: 0.65 }
+      weather: { playlists: ["NC Audio // Netrunning", "NC Audio // Weather & Drones"], match: /cyberspace|black ice|mainframe|subnet|white|industrial|layer/i, volume: 0.65 }
     },
     boss: {
       label: "Boss Fight // Smasher",
       fade: 1500,
       music: { playlists: ["NC Audio // Combat"], match: /scars|cyborg|drive|against/i, volume: 0.95 },
-      ambience: { playlists: ["NC Audio // Ambience"], match: /dirty|horns|crowd/i, volume: 0.50 },
-      weather: { playlists: ["NC Audio // Weather & Drones"], match: /louder|industrial|wind/i, volume: 0.60 }
+      ambience: { playlists: ["NC Audio // Ambience"], match: /sirens|dirty|horns|crowd/i, volume: 0.50 },
+      weather: { playlists: ["NC Audio // Weather & Drones"], match: /dust storm|substation|thunderstorm|louder|industrial|wind/i, volume: 0.60 }
     }
   };
 
