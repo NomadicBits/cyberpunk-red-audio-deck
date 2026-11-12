@@ -74,11 +74,10 @@ Hooks.once("ready", async () => {
 
   const controller = CPRAudioController.instance;
 
-  // Non-destructive directory check for GM
+  // Non-destructive directory & playlist auto-sync check for GM
   if (game.user.isGM) {
     try {
-      await controller.ensureServerDirectories();
-      await controller.ensureStandardPlaylists();
+      await controller.syncServerFolder(false);
     } catch (err) {
       console.warn("CPRAudioDeck | Initial setup check:", err);
     }

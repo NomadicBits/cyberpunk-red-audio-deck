@@ -45,6 +45,7 @@ export class CPRAudioDeckApp extends FormApplication {
 
       return {
         key: chKey,
+        activeSoundId: state.activeSoundId,
         trackName: sound ? sound.name : defaultLabel,
         playing: isPlaying,
         volume: Math.round(state.volume * 100),
@@ -63,17 +64,35 @@ export class CPRAudioDeckApp extends FormApplication {
       sfx: resolveChannel("sfx", "Tactical One-Shots Ready")
     };
 
+    const mapChannelSounds = (sounds, activeSoundId) =>
+      sounds.map(s => ({
+        id: s.id,
+        name: s.name,
+        playing: s.playing,
+        selected: s.id === activeSoundId
+      }));
+
     // Build channel-specific sound lists
-    const musicSounds = [
+    const musicSounds = mapChannelSounds([
       ...(combatPl?.sounds.contents || []),
       ...(clubsPl?.sounds.contents || [])
-    ];
-    const ambienceSounds = ambiencePl?.sounds.contents || [];
-    const weatherSounds = [
+    ], channels.music.activeSoundId);
+    const ambienceSounds = mapChannelSounds(ambiencePl?.sounds.contents || [], channels.ambience.activeSoundId);
+    const weatherSounds = mapChannelSounds([
       ...(weatherPl?.sounds.contents || []),
       ...(netPl?.sounds.contents || [])
-    ];
-    const sfxSounds = sfxPl?.sounds.contents || [];
+    ], channels.weather.activeSoundId);
+    const sfxSounds = mapChannelSounds(sfxPl?.sounds.contents || [], channels.sfx.activeSoundId);
+
+    const activeMood = controller.activeMood;
+    const moods = {
+      street: activeMood === "street",
+      stealth: activeMood === "stealth",
+      afterlife: activeMood === "afterlife",
+      combat: activeMood === "combat",
+      netrun: activeMood === "netrun",
+      boss: activeMood === "boss"
+    };
 
     // Tab 2: Synced Tracks Library grouped by Playlist
     const playlistGroups = [];
@@ -142,6 +161,8 @@ export class CPRAudioDeckApp extends FormApplication {
     return {
       masterVolume: Math.round(controller.masterVolume * 100),
       crossfade: controller.fadeDuration,
+      activeMood,
+      moods,
       channels,
       channelSounds: {
         music: musicSounds,

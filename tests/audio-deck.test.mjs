@@ -244,6 +244,7 @@ describe("Cyberpunk RED Night City Audio Deck Test Suite", async () => {
     initFoundryGlobals();
     const mod = await import("../scripts/audio-controller.js");
     CPRAudioController = mod.CPRAudioController;
+    CPRAudioController._instance = null;
     const sfxMod = await import("../scripts/procedural-sfx.js");
     proceduralSFX = sfxMod.proceduralSFX;
   });
@@ -368,13 +369,70 @@ describe("Cyberpunk RED Night City Audio Deck Test Suite", async () => {
     assert.equal(game.socket.emitted[0].data.type, "emp");
   });
 
-  it("6. Mood Matrix crossfade", async () => {
-    const controller = new CPRAudioController();
-    await controller.syncServerFolder(false);
+  it("6. Mood & Situation Quick-Trigger Matrix (all 6 moods, multi-layer routing, channel stopping, track cycling, UI state)", async () => {
+    global.FormApplication = class {
+      constructor() {}
+      static get defaultOptions() { return {}; }
+    };
+    const { CPRAudioDeckApp } = await import("../scripts/audio-deck-app.js");
+    const controller = CPRAudioController.instance;
+    const app = new CPRAudioDeckApp();
+
+    // 1. Auto-sync on first mood trigger even before manual syncServerFolder()
+    const streetRes = await controller.triggerMood("street");
+    assert.equal(streetRes.mood, "street");
+    assert.equal(controller.activeMood, "street", "activeMood must be street");
+    assert.ok(controller.channelState.music.activeSoundId !== null, "Street mood must activate music channel");
+    assert.ok(controller.channelState.ambience.activeSoundId !== null, "Street mood must activate ambience channel");
+    assert.ok(controller.channelState.weather.activeSoundId !== null, "Street mood must activate weather channel");
+    assert.equal(app.getData().moods.street, true, "UI getData().moods.street must be true");
+    assert.equal(app.getData().moods.combat, false, "UI getData().moods.combat must be false");
+
+    // 2. Stealth mood must stop Music channel and play Ambience + Weather drone
+    await controller.triggerMood("stealth");
+    assert.equal(controller.activeMood, "stealth");
+    assert.equal(controller.channelState.music.activeSoundId, null, "Stealth mood must stop music channel");
+    assert.ok(controller.channelState.ambience.activeSoundId !== null, "Stealth mood must keep ambience active");
+    assert.ok(controller.channelState.weather.activeSoundId !== null, "Stealth mood must keep weather drone active");
+    assert.equal(app.getData().moods.stealth, true);
+    assert.equal(app.getData().moods.street, false);
+
+    // 3. Afterlife mood must play Lounge Music + Ambience and stop Weather drone
+    await controller.triggerMood("afterlife");
+    assert.equal(controller.activeMood, "afterlife");
+    assert.ok(controller.channelState.music.activeSoundId !== null, "Afterlife mood must play club/lounge music");
+    assert.ok(controller.channelState.ambience.activeSoundId !== null, "Afterlife mood must play bar ambience");
+    assert.equal(controller.channelState.weather.activeSoundId, null, "Afterlife mood must stop weather channel");
+
+    // 4. Combat mood + track cycling when triggered twice in a row
+    await controller.triggerMood("combat");
+    const firstCombatTrackId = controller.channelState.music.activeSoundId;
+    assert.ok(firstCombatTrackId !== null, "Combat mood must engage combat music");
+    assert.ok(controller.channelState.ambience.activeSoundId !== null, "Combat mood must engage ambience");
+    assert.equal(controller.channelState.weather.activeSoundId, null, "Combat mood must clear weather channel");
 
     await controller.triggerMood("combat");
-    assert.ok(controller.channelState.music.activeSoundId !== null, "Music channel must engage for combat mood");
-    assert.ok(controller.channelState.ambience.activeSoundId !== null, "Ambience channel must engage for combat mood");
+    const secondCombatTrackId = controller.channelState.music.activeSoundId;
+    assert.notEqual(secondCombatTrackId, firstCombatTrackId, "Re-triggering combat mood must cycle to next combat track");
+
+    // 5. Netrun mood must play Music + Cyberspace Drone (Weather channel) and stop physical Ambience
+    await controller.triggerMood("netrun");
+    assert.equal(controller.activeMood, "netrun");
+    assert.ok(controller.channelState.music.activeSoundId !== null, "Netrun mood must play synth music");
+    assert.equal(controller.channelState.ambience.activeSoundId, null, "Netrun mood must stop physical street ambience");
+    assert.ok(controller.channelState.weather.activeSoundId !== null, "Netrun mood must play cyberspace drone on weather channel");
+
+    // 6. Boss mood must engage all 3 layers (Music + Ambience + Weather Drone) at high intensity
+    await controller.triggerMood("boss");
+    assert.equal(controller.activeMood, "boss");
+    assert.ok(controller.channelState.music.activeSoundId !== null, "Boss mood must play boss music");
+    assert.ok(controller.channelState.ambience.activeSoundId !== null, "Boss mood must play ambience");
+    assert.ok(controller.channelState.weather.activeSoundId !== null, "Boss mood must play heavy drone");
+    assert.equal(app.getData().moods.boss, true);
+
+    // 7. Panic Fade All must clear activeMood
+    await controller.panicFadeAll(50);
+    assert.equal(controller.activeMood, null, "panicFadeAll must reset activeMood to null");
   });
 
   it("7. Combat Automation & Scene Audio Preset Binding", async () => {

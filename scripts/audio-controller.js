@@ -16,6 +16,9 @@ export class CPRAudioController {
     // Master Volume (0.0 to 1.0)
     this.masterVolume = 0.9;
 
+    // Currently active mood preset key ("street" | "stealth" | "afterlife" | "combat" | "netrun" | "boss" | null)
+    this.activeMood = null;
+
     // Explicit Per-Channel State Map (Total Isolation)
     this.channelState = {
       music:    { activeSoundId: null, activePlaylistId: null, volume: 0.8, savedVolume: 0.8, muted: false, solo: false, loop: true },
@@ -281,22 +284,27 @@ export class CPRAudioController {
     if (ch.activeSoundId && ch.activeSoundId !== targetSound.id) {
       const prevSound = this.getChannelActiveSound(channel);
       if (prevSound && prevSound.playing) {
-        this.fadeSoundOut(prevSound, this.fadeDuration * 0.75);
+        // If in a different playlist (or non-sequential), stop the previous sound cleanly
+        if (!prevSound.parent || prevSound.parent.id !== targetPlaylist.id || targetPlaylist.mode !== 0) {
+          await this.fadeSoundOut(prevSound, this.fadeDuration);
+        }
       }
     }
 
     ch.activeSoundId = targetSound.id;
     ch.activePlaylistId = targetPlaylist.id;
 
-    // Apply repeat flag
-    await targetSound.update({ repeat: ch.loop });
+    const effVol = Math.max(this.getEffectiveVolume(channel), 0.0001);
 
-    const effVol = this.getEffectiveVolume(channel);
+    // Configure volume, loop, and native Foundry fade BEFORE starting playback
+    await targetSound.update({
+      repeat: ch.loop,
+      volume: effVol,
+      fade: this.fadeDuration
+    });
+
     if (!targetSound.playing) {
       await targetPlaylist.playSound(targetSound);
-      await this.fadeSoundIn(targetSound, this.fadeDuration, effVol);
-    } else {
-      await targetSound.update({ volume: Math.max(effVol, 0.0001) });
     }
 
     return targetSound;
@@ -323,106 +331,59 @@ export class CPRAudioController {
     if (typeof ui !== "undefined" && ui.notifications) {
       ui.notifications.warn("PANIC FADE: Cutting all Night City Audio...");
     }
-    const activeSounds = [];
+    this.activeMood = null;
 
     for (const pl of game.playlists) {
       for (const sound of pl.sounds) {
         if (sound.playing) {
-          activeSounds.push({ sound, startVol: sound.volume || 0.8 });
-        }
-      }
-    }
-
-    if (activeSounds.length === 0) return;
-
-    const startTime = performance.now();
-    const interval = 50;
-
-    return new Promise((resolve) => {
-      const timer = setInterval(async () => {
-        const elapsed = performance.now() - startTime;
-        const progress = Math.min(elapsed / duration, 1.0);
-        const curve = 1.0 - progress;
-
-        for (const item of activeSounds) {
           try {
-            await item.sound.update({ volume: Math.max(item.startVol * curve, 0.0001) });
+            if (sound.sound?.fade) {
+              sound.sound.fade(0, { duration });
+            }
           } catch (e) {}
         }
-
-        if (progress >= 1.0) {
-          clearInterval(timer);
-          for (const pl of game.playlists) {
-            try {
-              await pl.stopAll();
-            } catch (e) {}
-          }
-          // Reset channel states
-          for (const ch of Object.values(this.channelState)) {
-            ch.activeSoundId = null;
-            ch.activePlaylistId = null;
-          }
-          if (typeof ui !== "undefined" && ui.notifications) {
-            ui.notifications.info("All audio channels silenced.");
-          }
-          resolve();
-        }
-      }, interval);
-    });
-  }
-
-  /**
-   * Fade sound out then stop
-   */
-  fadeSoundOut(sound, duration = 2000) {
-    if (!sound || !sound.playing) return;
-    const startVol = sound.volume || 0.8;
-    const startTime = performance.now();
-
-    const interval = setInterval(async () => {
-      const elapsed = performance.now() - startTime;
-      const progress = Math.min(elapsed / duration, 1.0);
-      const newVol = startVol * (1.0 - progress);
-
-      try {
-        await sound.update({ volume: Math.max(newVol, 0.0001) });
-      } catch (e) {}
-
-      if (progress >= 1.0) {
-        clearInterval(interval);
-        try {
-          await sound.parent.stopSound(sound);
-          await sound.update({ volume: startVol });
-        } catch (e) {}
       }
-    }, 50);
+      try {
+        await pl.stopAll();
+      } catch (e) {}
+    }
+
+    // Reset channel states
+    for (const ch of Object.values(this.channelState)) {
+      ch.activeSoundId = null;
+      ch.activePlaylistId = null;
+    }
+
+    if (typeof ui !== "undefined" && ui.notifications) {
+      ui.notifications.info("All audio channels silenced.");
+    }
   }
 
   /**
-   * Fade sound in
+   * Fade sound out then stop using Foundry v12 native sound fade
    */
-  fadeSoundIn(sound, duration = 2500, targetVol = null) {
+  async fadeSoundOut(sound, duration = 2000) {
+    if (!sound || !sound.playing) return;
+    try {
+      await sound.update({ fade: duration });
+      if (sound.parent) {
+        await sound.parent.stopSound(sound);
+      }
+    } catch (e) {}
+  }
+
+  /**
+   * Fade sound in using Foundry v12 native sound fade
+   */
+  async fadeSoundIn(sound, duration = 2500, targetVol = null) {
     if (!sound) return;
     const finalVol = targetVol !== null ? targetVol : (sound.volume || 0.8);
-    sound.update({ volume: 0.01 });
-
-    const startTime = performance.now();
-    const interval = setInterval(async () => {
-      const elapsed = performance.now() - startTime;
-      const progress = Math.min(elapsed / duration, 1.0);
-      const newVol = finalVol * progress;
-
-      try {
-        await sound.update({ volume: Math.max(newVol, 0.01) });
-      } catch (e) {}
-
-      if (progress >= 1.0) {
-        clearInterval(interval);
-        try {
-          await sound.update({ volume: finalVol });
-        } catch (e) {}
+    try {
+      await sound.update({ volume: Math.max(finalVol, 0.0001), fade: duration });
+      if (sound.sound?.playing && sound.sound?.fade) {
+        sound.sound.fade(finalVol, { duration });
       }
-    }, 50);
+    } catch (e) {}
   }
 
   /**
@@ -476,51 +437,132 @@ export class CPRAudioController {
   }
 
   /**
-   * Trigger Mood Preset
+   * Multi-Layer Mood Preset Definitions across Music, Ambience, and Weather/Drone Channels
+   */
+  static MOOD_PRESETS = {
+    street: {
+      label: "Street Exploration",
+      fade: 2500,
+      music: { playlists: ["NC Audio // Combat", "NC Audio // Clubs & Lounge"], match: /dreaming|future|will you/i, volume: 0.55 },
+      ambience: { playlists: ["NC Audio // Ambience"], match: /crowd|rain|city|traffic/i, volume: 0.65 },
+      weather: { playlists: ["NC Audio // Weather & Drones"], match: /skyline|wind/i, volume: 0.35 }
+    },
+    stealth: {
+      label: "Corp Stealth",
+      fade: 3000,
+      music: null,
+      ambience: { playlists: ["NC Audio // Ambience"], match: /bank|dirty|distant/i, volume: 0.50 },
+      weather: { playlists: ["NC Audio // Weather & Drones", "NC Audio // Netrunning"], match: /industrial|layer|white/i, volume: 0.55 }
+    },
+    afterlife: {
+      label: "Fixer Lounge / Afterlife",
+      fade: 2000,
+      music: { playlists: ["NC Audio // Clubs & Lounge", "NC Audio // Combat"], match: /flowers|dreaming|future/i, volume: 0.75 },
+      ambience: { playlists: ["NC Audio // Ambience"], match: /crowd|bank|city/i, volume: 0.45 },
+      weather: null
+    },
+    combat: {
+      label: "Cyberpsycho Combat",
+      fade: 2000,
+      music: { playlists: ["NC Audio // Combat"], match: /against|drive|will you/i, volume: 0.85 },
+      ambience: { playlists: ["NC Audio // Ambience"], match: /horns|dirty|traffic/i, volume: 0.45 },
+      weather: null
+    },
+    netrun: {
+      label: "Netrun / Cyberspace",
+      fade: 2000,
+      music: { playlists: ["NC Audio // Combat", "NC Audio // Clubs & Lounge"], match: /cyborg|future|dreaming/i, volume: 0.55 },
+      ambience: null,
+      weather: { playlists: ["NC Audio // Netrunning", "NC Audio // Weather & Drones"], match: /white|industrial|layer/i, volume: 0.65 }
+    },
+    boss: {
+      label: "Boss Fight // Smasher",
+      fade: 1500,
+      music: { playlists: ["NC Audio // Combat"], match: /scars|cyborg|drive|against/i, volume: 0.95 },
+      ambience: { playlists: ["NC Audio // Ambience"], match: /dirty|horns|crowd/i, volume: 0.50 },
+      weather: { playlists: ["NC Audio // Weather & Drones"], match: /louder|industrial|wind/i, volume: 0.60 }
+    }
+  };
+
+  /**
+   * Helper to select a matching sound from candidate playlists (and cycle when re-triggered)
+   */
+  _pickMoodSound(playlistNames, matchRegex = null, currentSoundId = null) {
+    const allSounds = [];
+    for (const plName of playlistNames) {
+      const pl = game.playlists.getName(plName);
+      if (pl && pl.sounds.size > 0) {
+        allSounds.push(...pl.sounds.contents);
+      }
+    }
+
+    if (allSounds.length === 0) return null;
+
+    let candidates = allSounds;
+    if (matchRegex) {
+      const matched = allSounds.filter(s => matchRegex.test(s.name));
+      if (matched.length > 0) candidates = matched;
+    }
+
+    if (currentSoundId && candidates.length > 1) {
+      const idx = candidates.findIndex(s => s.id === currentSoundId);
+      if (idx !== -1) {
+        return candidates[(idx + 1) % candidates.length];
+      }
+    }
+
+    return candidates[0];
+  }
+
+  /**
+   * Trigger Mood Preset across Music, Ambience, and Weather/Drone layers
    */
   async triggerMood(mood) {
-    let musicPlName = "NC Audio // Combat";
-    let ambPlName = "NC Audio // Ambience";
+    const preset = CPRAudioController.MOOD_PRESETS[mood];
+    if (!preset) return null;
 
-    switch (mood) {
-      case "street":
-        musicPlName = "NC Audio // Clubs & Lounge";
-        ambPlName = "NC Audio // Ambience";
-        break;
-      case "stealth":
-        musicPlName = null;
-        ambPlName = "NC Audio // Weather & Drones";
-        break;
-      case "afterlife":
-        musicPlName = "NC Audio // Clubs & Lounge";
-        ambPlName = "NC Audio // Ambience";
-        break;
-      case "combat":
-      case "boss":
-        musicPlName = "NC Audio // Combat";
-        ambPlName = "NC Audio // Weather & Drones";
-        break;
-      case "netrun":
-        musicPlName = null;
-        ambPlName = "NC Audio // Netrunning";
-        break;
+    // Auto-sync server folders if standard playlists are empty or missing
+    const combatPl = game.playlists.getName("NC Audio // Combat");
+    const ambPl = game.playlists.getName("NC Audio // Ambience");
+    if (!combatPl || combatPl.sounds.size === 0 || !ambPl || ambPl.sounds.size === 0) {
+      await this.syncServerFolder(false);
     }
 
-    if (musicPlName) {
-      const pl = game.playlists.getName(musicPlName);
-      if (pl && pl.sounds.size > 0) {
-        const sound = pl.sounds.contents[0];
-        await this.playChannelTrack("music", sound.id);
+    this.activeMood = mood;
+    const prevFade = this.fadeDuration;
+    if (preset.fade) this.fadeDuration = preset.fade;
+
+    const activatedTracks = { music: null, ambience: null, weather: null };
+
+    for (const chKey of ["music", "ambience", "weather"]) {
+      const layerCfg = preset[chKey];
+      if (layerCfg) {
+        const chState = this.channelState[chKey];
+        if (typeof layerCfg.volume === "number") {
+          chState.volume = layerCfg.volume;
+          chState.savedVolume = layerCfg.volume;
+        }
+        const targetSound = this._pickMoodSound(layerCfg.playlists, layerCfg.match, chState.activeSoundId);
+        if (targetSound) {
+          await this.playChannelTrack(chKey, targetSound.id);
+          activatedTracks[chKey] = targetSound;
+        }
+      } else {
+        await this.stopChannel(chKey);
       }
     }
 
-    if (ambPlName) {
-      const pl = game.playlists.getName(ambPlName);
-      if (pl && pl.sounds.size > 0) {
-        const sound = pl.sounds.contents[0];
-        await this.playChannelTrack("ambience", sound.id);
-      }
+    this.fadeDuration = prevFade;
+
+    if (typeof ui !== "undefined" && ui.notifications) {
+      ui.notifications.info(`Night City Audio Deck: Mood engaged — ${preset.label}`);
     }
+
+    return {
+      mood,
+      label: preset.label,
+      tracks: activatedTracks
+    };
   }
 
   /**
