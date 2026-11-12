@@ -217,72 +217,43 @@
         <!-- Mood Quick-Trigger Matrix -->
         <div class="cpr-panel">
           <div class="cpr-panel-title">
-            <span><i class="fas fa-theater-masks"></i> Mood & Situation Quick-Trigger Matrix</span>
-            <span style="font-size: 10px; color: var(--cpr-audio-text-muted); font-family: var(--cpr-audio-font-mono);">
-              ONE-CLICK CROSSFADE
-            </span>
+            <span><i class="fas fa-theater-masks"></i> Mood &amp; Situation Quick-Trigger Matrix</span>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <button type="button" class="cpr-btn-action btn-open-mood-editor" style="padding: 2px 8px; font-size: 10px;" title="Configure tracks, mix volumes, or edit moods">
+                <i class="fas fa-cog"></i> CONFIGURE TRACKS &amp; MIX
+              </button>
+              <button type="button" class="cpr-btn-action btn-add-new-mood-pad" style="padding: 2px 8px; font-size: 10px; border-color: var(--cpr-audio-green); color: var(--cpr-audio-green);" title="Add a new Mood Selection to the matrix">
+                <i class="fas fa-plus"></i> ADD MOOD
+              </button>
+            </div>
           </div>
 
           <div class="cpr-mood-grid">
-            <div class="cpr-mood-pad btn-trigger-mood {{#if moods.street}}active{{/if}}" data-mood="street">
-              <div class="cpr-mood-title"><i class="fas fa-walking" style="color: var(--cpr-audio-cyan);"></i> Street Exploration</div>
-              <div class="cpr-mood-desc">Lo-fi neon synths + rain ambience + distant city rumble</div>
-              {{#if moods.street}}
-              <span class="cpr-mood-tag" style="background: var(--cpr-audio-cyan); color: #000; font-weight: bold;">ACTIVE NOW &bull; PLAYING</span>
-              {{else}}
-              <span class="cpr-mood-tag" style="background: rgba(0, 240, 255, 0.1); color: var(--cpr-audio-cyan);">READY &bull; 2.5s FADE</span>
-              {{/if}}
+            {{#each moodList}}
+            <div class="cpr-mood-pad btn-trigger-mood {{#if this.active}}active{{/if}}" data-mood="{{this.key}}" style="border-left-color: {{#if this.active}}var(--cpr-audio-red){{else}}{{this.colorHex}}{{/if}};">
+              <div class="cpr-mood-header-row">
+                <div class="cpr-mood-title">
+                  <i class="{{this.icon}}" style="color: {{this.colorHex}};"></i> {{this.label}}
+                </div>
+                <button type="button" class="cpr-mood-gear-btn btn-edit-single-mood" data-mood="{{this.key}}" title="Configure tracks &amp; mix volumes for {{this.label}}">
+                  <i class="fas fa-sliders-h"></i>
+                </button>
+              </div>
+              <div class="cpr-mood-desc">{{this.desc}}</div>
+              <div class="cpr-mood-footer-row">
+                {{#if this.active}}
+                <span class="cpr-mood-tag" style="background: var(--cpr-audio-red); color: #fff; font-weight: bold;">ACTIVE NOW &bull; PLAYING</span>
+                {{else}}
+                <span class="cpr-mood-tag" style="background: rgba(255, 255, 255, 0.06); color: {{this.colorHex}};">READY &bull; {{this.fadeSec}}s FADE</span>
+                {{/if}}
+                {{#if this.isCustomized}}
+                <span class="cpr-mood-custom-dot" title="Custom track/volume mix configured">MIXED</span>
+                {{else if this.isCustom}}
+                <span class="cpr-mood-custom-dot" title="User-created mood pad">CUSTOM</span>
+                {{/if}}
+              </div>
             </div>
-
-            <div class="cpr-mood-pad btn-trigger-mood {{#if moods.stealth}}active{{/if}}" data-mood="stealth">
-              <div class="cpr-mood-title"><i class="fas fa-user-secret" style="color: #a855f7;"></i> Corp Stealth</div>
-              <div class="cpr-mood-desc">Sub-bass pulse + server fan drone + tense ticking</div>
-              {{#if moods.stealth}}
-              <span class="cpr-mood-tag" style="background: #a855f7; color: #fff; font-weight: bold;">ACTIVE NOW &bull; PLAYING</span>
-              {{else}}
-              <span class="cpr-mood-tag" style="background: rgba(168, 85, 247, 0.1); color: #c084fc;">READY &bull; 3.0s FADE</span>
-              {{/if}}
-            </div>
-
-            <div class="cpr-mood-pad btn-trigger-mood {{#if moods.afterlife}}active{{/if}}" data-mood="afterlife">
-              <div class="cpr-mood-title"><i class="fas fa-cocktail" style="color: var(--cpr-audio-yellow);"></i> Fixer Lounge / Afterlife</div>
-              <div class="cpr-mood-desc">Dark industrial jazz + cocktail murmur + cigarette smoke</div>
-              {{#if moods.afterlife}}
-              <span class="cpr-mood-tag" style="background: var(--cpr-audio-yellow); color: #000; font-weight: bold;">ACTIVE NOW &bull; PLAYING</span>
-              {{else}}
-              <span class="cpr-mood-tag" style="background: rgba(255, 230, 0, 0.1); color: var(--cpr-audio-yellow);">READY &bull; 2.0s FADE</span>
-              {{/if}}
-            </div>
-
-            <div class="cpr-mood-pad btn-trigger-mood {{#if moods.combat}}active{{/if}}" data-mood="combat">
-              <div class="cpr-mood-title"><i class="fas fa-fire" style="color: var(--cpr-audio-red);"></i> Cyberpsycho Combat</div>
-              <div class="cpr-mood-desc">Heavy distorted breakbeats + alarms + adrenaline rush</div>
-              {{#if moods.combat}}
-              <span class="cpr-mood-tag" style="background: var(--cpr-audio-red); color: #fff; font-weight: bold;">ACTIVE NOW &bull; PLAYING</span>
-              {{else}}
-              <span class="cpr-mood-tag" style="background: rgba(255, 0, 60, 0.15); color: var(--cpr-audio-red);">READY &bull; 2.0s FADE</span>
-              {{/if}}
-            </div>
-
-            <div class="cpr-mood-pad btn-trigger-mood {{#if moods.netrun}}active{{/if}}" data-mood="netrun">
-              <div class="cpr-mood-title"><i class="fas fa-network-wired" style="color: #38bdf8;"></i> Netrun / Cyberspace</div>
-              <div class="cpr-mood-desc">Bitcrushed digital hum + Black ICE sweep + packet clicks</div>
-              {{#if moods.netrun}}
-              <span class="cpr-mood-tag" style="background: #38bdf8; color: #000; font-weight: bold;">ACTIVE NOW &bull; PLAYING</span>
-              {{else}}
-              <span class="cpr-mood-tag" style="background: rgba(56, 189, 248, 0.1); color: #38bdf8;">READY &bull; 2.0s FADE</span>
-              {{/if}}
-            </div>
-
-            <div class="cpr-mood-pad btn-trigger-mood {{#if moods.boss}}active{{/if}}" data-mood="boss">
-              <div class="cpr-mood-title"><i class="fas fa-skull" style="color: #ec4899;"></i> Boss Fight // Smasher</div>
-              <div class="cpr-mood-desc">Relentless industrial metal + sirens + max intensity</div>
-              {{#if moods.boss}}
-              <span class="cpr-mood-tag" style="background: #ec4899; color: #fff; font-weight: bold;">ACTIVE NOW &bull; PLAYING</span>
-              {{else}}
-              <span class="cpr-mood-tag" style="background: rgba(236, 72, 153, 0.1); color: #f472b6;">READY &bull; 1.5s FADE</span>
-              {{/if}}
-            </div>
+            {{/each}}
           </div>
         </div>
 

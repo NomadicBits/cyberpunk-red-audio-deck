@@ -1,0 +1,220 @@
+<div class="cpr-mood-editor-inner">
+  <div class="cpr-mood-editor-layout">
+
+    <!-- Left Sidebar: Mood Selections List -->
+    <div class="cpr-mood-sidebar">
+      <div class="cpr-mood-sidebar-header">
+        <span><i class="fas fa-th-large"></i> MOOD SELECTIONS ({{moodList.length}})</span>
+      </div>
+
+      <div class="cpr-mood-sidebar-actions">
+        <button type="button" class="cpr-btn-action btn-new-mood" style="width: 100%; justify-content: center;">
+          <i class="fas fa-plus-circle"></i> + ADD NEW MOOD SELECTION
+        </button>
+        <button type="button" class="cpr-btn-action btn-capture-live-mood" style="width: 100%; justify-content: center; border-color: var(--cpr-audio-green); color: var(--cpr-audio-green);">
+          <i class="fas fa-camera"></i> CAPTURE LIVE MIX AS MOOD
+        </button>
+      </div>
+
+      <div class="cpr-mood-sidebar-list">
+        {{#each moodList}}
+        <div class="cpr-mood-list-item {{#if this.isSelected}}selected{{/if}}" data-mood-key="{{this.key}}" style="border-left-color: {{this.colorHex}};">
+          <div class="item-main">
+            <i class="{{this.icon}}" style="color: {{this.colorHex}}; width: 16px; text-align: center;"></i>
+            <span class="item-label">{{this.label}}</span>
+          </div>
+          <div class="item-badges">
+            {{#if this.isCustom}}
+            <span class="cpr-mini-badge custom">CUSTOM</span>
+            {{else if this.isCustomized}}
+            <span class="cpr-mini-badge edited">EDITED</span>
+            {{/if}}
+          </div>
+        </div>
+        {{/each}}
+      </div>
+
+      <div class="cpr-mood-sidebar-footer">
+        <button type="button" class="cpr-btn-sm btn-reset-all-moods" style="width: 100%;" title="Restore all default moods to factory settings">
+          <i class="fas fa-undo"></i> RESET ALL TO FACTORY DEFAULTS
+        </button>
+      </div>
+    </div>
+
+    <!-- Right Main Panel: Track & Mix Volume Configurator -->
+    <div class="cpr-mood-form-panel">
+      <div class="cpr-panel-title" style="margin-bottom: 4px;">
+        <span>
+          <i class="{{editing.icon}}" style="color: {{editing.colorHex}}; margin-right: 6px;"></i>
+          {{#if isCreatingNew}}CREATE NEW MOOD SELECTION{{else}}CONFIGURE MOOD: {{editing.label}}{{/if}}
+        </span>
+        <span style="font-size: 10px; font-family: var(--cpr-audio-font-mono); color: var(--cpr-audio-text-muted);">
+          ID: {{editing.key}}
+        </span>
+      </div>
+
+      <!-- Metadata Row -->
+      <div class="cpr-mood-meta-grid">
+        <div class="cpr-field-group">
+          <label>MOOD TITLE</label>
+          <input type="text" class="cpr-select mood-input-label" value="{{editing.label}}" placeholder="e.g. Trauma Team Extraction">
+        </div>
+
+        <div class="cpr-field-group">
+          <label>ICON</label>
+          <select class="cpr-select mood-input-icon">
+            {{#each iconOptions}}
+            <option value="{{this.value}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+            {{/each}}
+          </select>
+        </div>
+
+        <div class="cpr-field-group">
+          <label>ACCENT COLOR</label>
+          <select class="cpr-select mood-input-color">
+            {{#each colorOptions}}
+            <option value="{{this.value}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+            {{/each}}
+          </select>
+        </div>
+
+        <div class="cpr-field-group">
+          <label>CROSSFADE</label>
+          <select class="cpr-select mood-input-fade">
+            {{#each fadeOptions}}
+            <option value="{{this.value}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+            {{/each}}
+          </select>
+        </div>
+      </div>
+
+      <div class="cpr-mood-meta-row2">
+        <div class="cpr-field-group" style="flex: 1;">
+          <label>SUBTITLE / ATMOSPHERE DESCRIPTION</label>
+          <input type="text" class="cpr-select mood-input-desc" value="{{editing.desc}}" placeholder="Describe the tracks and atmosphere...">
+        </div>
+
+        <div class="cpr-field-group" style="width: 210px;">
+          <label>OPTIONAL LAUNCH STINGER</label>
+          <select class="cpr-select mood-input-stinger">
+            {{#each stingerOptions}}
+            <option value="{{this.value}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+            {{/each}}
+          </select>
+        </div>
+      </div>
+
+      <!-- 3 Layer Track & Mix Volume Selectors -->
+      <div class="cpr-mood-layers-stack">
+
+        <!-- Layer 1: MUSIC -->
+        <div class="cpr-mood-layer-card" style="border-left: 3px solid var(--cpr-audio-red);">
+          <div class="layer-card-header">
+            <span style="color: var(--cpr-audio-red); font-weight: 800;"><i class="fas fa-music"></i> 1. MUSIC CHANNEL TRACK &amp; MIX VOLUME</span>
+            <span class="layer-vol-badge"><span class="music-vol-label">{{editing.musicVolPct}}%</span> MIX</span>
+          </div>
+          <div class="layer-card-controls">
+            <div class="layer-track-col">
+              <select class="cpr-select mood-music-track" style="width: 100%;">
+                <option value="off" {{#if (eq editing.musicMode "off")}}selected{{/if}}>-- OFF (Silence Music Channel) --</option>
+                <option value="auto" {{#if (eq editing.musicMode "auto")}}selected{{/if}}>⚡ AUTO-MATCH / CYCLE MOOD PLAYLIST TRACKS</option>
+                <optgroup label="Music &amp; Club Playlists">
+                  {{#each trackOptions.music}}
+                  <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>{{this.name}} [{{this.playlistName}}]</option>
+                  {{/each}}
+                </optgroup>
+                <optgroup label="All Other Synced Tracks">
+                  {{#each trackOptions.all}}
+                  <option value="{{this.id}}" {{#if this.selectedOtherMusic}}selected{{/if}}>{{this.name}} [{{this.playlistName}}]</option>
+                  {{/each}}
+                </optgroup>
+              </select>
+            </div>
+            <div class="layer-slider-col">
+              <input type="range" class="cpr-slider mood-music-vol" min="0" max="100" value="{{editing.musicVolPct}}">
+            </div>
+          </div>
+        </div>
+
+        <!-- Layer 2: AMBIENCE -->
+        <div class="cpr-mood-layer-card" style="border-left: 3px solid var(--cpr-audio-cyan);">
+          <div class="layer-card-header">
+            <span style="color: var(--cpr-audio-cyan); font-weight: 800;"><i class="fas fa-city"></i> 2. AMBIENCE CHANNEL TRACK &amp; MIX VOLUME</span>
+            <span class="layer-vol-badge"><span class="ambience-vol-label">{{editing.ambienceVolPct}}%</span> MIX</span>
+          </div>
+          <div class="layer-card-controls">
+            <div class="layer-track-col">
+              <select class="cpr-select mood-ambience-track" style="width: 100%;">
+                <option value="off" {{#if (eq editing.ambienceMode "off")}}selected{{/if}}>-- OFF (Silence Ambience Channel) --</option>
+                <option value="auto" {{#if (eq editing.ambienceMode "auto")}}selected{{/if}}>⚡ AUTO-MATCH / CYCLE MOOD AMBIENCE TRACKS</option>
+                <optgroup label="Ambience Playlists">
+                  {{#each trackOptions.ambience}}
+                  <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>{{this.name}} [{{this.playlistName}}]</option>
+                  {{/each}}
+                </optgroup>
+                <optgroup label="All Other Synced Tracks">
+                  {{#each trackOptions.all}}
+                  <option value="{{this.id}}" {{#if this.selectedOtherAmbience}}selected{{/if}}>{{this.name}} [{{this.playlistName}}]</option>
+                  {{/each}}
+                </optgroup>
+              </select>
+            </div>
+            <div class="layer-slider-col">
+              <input type="range" class="cpr-slider mood-ambience-vol" min="0" max="100" value="{{editing.ambienceVolPct}}">
+            </div>
+          </div>
+        </div>
+
+        <!-- Layer 3: WEATHER / DRONE -->
+        <div class="cpr-mood-layer-card" style="border-left: 3px solid var(--cpr-audio-yellow);">
+          <div class="layer-card-header">
+            <span style="color: var(--cpr-audio-yellow); font-weight: 800;"><i class="fas fa-cloud-rain"></i> 3. WEATHER / DRONE CHANNEL TRACK &amp; MIX VOLUME</span>
+            <span class="layer-vol-badge"><span class="weather-vol-label">{{editing.weatherVolPct}}%</span> MIX</span>
+          </div>
+          <div class="layer-card-controls">
+            <div class="layer-track-col">
+              <select class="cpr-select mood-weather-track" style="width: 100%;">
+                <option value="off" {{#if (eq editing.weatherMode "off")}}selected{{/if}}>-- OFF (Silence Weather / Drone Channel) --</option>
+                <option value="auto" {{#if (eq editing.weatherMode "auto")}}selected{{/if}}>⚡ AUTO-MATCH / CYCLE WEATHER &amp; DRONE TRACKS</option>
+                <optgroup label="Weather, Drone &amp; Netrunning Playlists">
+                  {{#each trackOptions.weather}}
+                  <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>{{this.name}} [{{this.playlistName}}]</option>
+                  {{/each}}
+                </optgroup>
+                <optgroup label="All Other Synced Tracks">
+                  {{#each trackOptions.all}}
+                  <option value="{{this.id}}" {{#if this.selectedOtherWeather}}selected{{/if}}>{{this.name}} [{{this.playlistName}}]</option>
+                  {{/each}}
+                </optgroup>
+              </select>
+            </div>
+            <div class="layer-slider-col">
+              <input type="range" class="cpr-slider mood-weather-vol" min="0" max="100" value="{{editing.weatherVolPct}}">
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer Action Buttons -->
+      <div class="cpr-mood-editor-footer">
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="cpr-btn-action btn-preview-mood-mix" style="border-color: var(--cpr-audio-cyan); color: var(--cpr-audio-cyan);">
+            <i class="fas fa-play"></i> TEST / PREVIEW MIX LIVE
+          </button>
+          {{#if canDeleteOrReset}}
+          <button type="button" class="cpr-btn-action btn-delete-mood" style="border-color: var(--cpr-audio-red); color: var(--cpr-audio-red);">
+            <i class="fas fa-trash-alt"></i> {{#if editing.isDefault}}RESET TO DEFAULT{{else}}DELETE MOOD{{/if}}
+          </button>
+          {{/if}}
+        </div>
+
+        <button type="button" class="cpr-panic-btn btn-save-mood" style="background: linear-gradient(135deg, #00c853 0%, #007e33 100%); border-color: #00ff66; box-shadow: 0 0 12px rgba(0, 255, 102, 0.4);">
+          <i class="fas fa-save"></i> SAVE MOOD SELECTION
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+</div>

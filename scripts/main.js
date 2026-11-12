@@ -5,6 +5,7 @@
 
 import { CPRAudioController } from "./audio-controller.js";
 import { CPRAudioDeckApp } from "./audio-deck-app.js";
+import { CPRMoodEditorApp } from "./mood-editor-app.js";
 import { proceduralSFX } from "./procedural-sfx.js";
 
 const MODULE_ID = "cyberpunk-red-audio-deck";
@@ -58,9 +59,19 @@ Hooks.once("init", () => {
     default: 2500
   });
 
+  game.settings.register(MODULE_ID, "customMoodPresets", {
+    name: "Custom Mood Matrix Presets",
+    hint: "Stores user-configured Mood Matrix track bindings, mix volumes, and custom mood pads.",
+    scope: "world",
+    config: false,
+    type: Object,
+    default: {}
+  });
+
   // Global API Namespace
   globalThis.CPRAudioDeck = {
-    open: () => new CPRAudioDeckApp().render(true),
+    open: () => CPRAudioDeckApp.openInstance(),
+    openMoodEditor: (moodKey = null) => new CPRMoodEditorApp({ selectedMood: moodKey }).render(true),
     controller: CPRAudioController.instance,
     panic: () => CPRAudioController.instance.panicFadeAll(),
     sync: () => CPRAudioController.instance.syncServerFolder(true),

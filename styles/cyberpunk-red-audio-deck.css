@@ -957,3 +957,255 @@
   background: rgba(0, 240, 255, 0.4);
   box-shadow: 0 0 10px var(--cpr-audio-cyan-glow);
 }
+
+/* =====================================================================
+   MOOD PAD HEADER / GEAR BUTTON & MOOD MATRIX CONFIGURATOR WINDOW
+   ===================================================================== */
+
+.cpr-mood-grid {
+  max-height: 255px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--cpr-audio-cyan) #0d0e12;
+  padding-right: 3px;
+}
+
+.cpr-mood-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.cpr-mood-gear-btn {
+  width: 22px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid #2b3248;
+  border-radius: 3px;
+  color: var(--cpr-audio-text-muted);
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.15s ease;
+}
+
+.cpr-mood-gear-btn:hover {
+  background: rgba(0, 240, 255, 0.2);
+  border-color: var(--cpr-audio-cyan);
+  color: var(--cpr-audio-cyan);
+  box-shadow: 0 0 6px var(--cpr-audio-cyan-glow);
+}
+
+.cpr-mood-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.cpr-mood-custom-dot {
+  font-family: var(--cpr-audio-font-mono);
+  font-size: 8px;
+  padding: 1px 4px;
+  border-radius: 2px;
+  background: rgba(0, 255, 102, 0.15);
+  border: 1px solid var(--cpr-audio-green);
+  color: var(--cpr-audio-green);
+  font-weight: bold;
+}
+
+/* Mood Configurator Window Layout */
+.cpr-mood-editor-inner {
+  background: var(--cpr-audio-bg);
+  color: var(--cpr-audio-text);
+  font-family: var(--cpr-audio-font-display);
+  height: 100%;
+  padding: 12px;
+  box-sizing: border-box;
+}
+
+.cpr-mood-editor-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 14px;
+  height: 100%;
+}
+
+.cpr-mood-sidebar {
+  background: var(--cpr-audio-card);
+  border: 1px solid var(--cpr-audio-border);
+  border-radius: 4px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cpr-mood-sidebar-header {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--cpr-audio-cyan);
+  border-bottom: 1px solid var(--cpr-audio-border);
+  padding-bottom: 6px;
+}
+
+.cpr-mood-sidebar-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cpr-mood-sidebar-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--cpr-audio-red) #0d0e12;
+  max-height: 360px;
+}
+
+.cpr-mood-list-item {
+  background: #10131d;
+  border: 1px solid #22283a;
+  border-left: 3px solid var(--cpr-audio-cyan);
+  border-radius: 3px;
+  padding: 7px 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.15s ease;
+}
+
+.cpr-mood-list-item:hover {
+  background: #171c2b;
+  border-color: var(--cpr-audio-cyan);
+}
+
+.cpr-mood-list-item.selected {
+  background: #1c1018;
+  border-color: var(--cpr-audio-red);
+  box-shadow: 0 0 8px rgba(255, 0, 60, 0.35);
+}
+
+.cpr-mood-list-item .item-main {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cpr-mini-badge {
+  font-family: var(--cpr-audio-font-mono);
+  font-size: 8px;
+  padding: 1px 4px;
+  border-radius: 2px;
+  font-weight: bold;
+}
+
+.cpr-mini-badge.custom {
+  background: rgba(0, 255, 102, 0.18);
+  color: var(--cpr-audio-green);
+  border: 1px solid var(--cpr-audio-green);
+}
+
+.cpr-mini-badge.edited {
+  background: rgba(255, 230, 0, 0.18);
+  color: var(--cpr-audio-yellow);
+  border: 1px solid var(--cpr-audio-yellow);
+}
+
+.cpr-mood-form-panel {
+  background: var(--cpr-audio-card);
+  border: 1px solid var(--cpr-audio-border);
+  border-radius: 4px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cpr-mood-meta-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 0.9fr;
+  gap: 8px;
+}
+
+.cpr-mood-meta-row2 {
+  display: flex;
+  gap: 8px;
+}
+
+.cpr-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.cpr-field-group label {
+  font-family: var(--cpr-audio-font-mono);
+  font-size: 9px;
+  color: var(--cpr-audio-text-muted);
+  letter-spacing: 0.6px;
+}
+
+.cpr-mood-layers-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.cpr-mood-layer-card {
+  background: #0d1018;
+  border: 1px solid #22283a;
+  border-radius: 4px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.layer-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+
+.layer-vol-badge {
+  font-family: var(--cpr-audio-font-mono);
+  font-size: 11px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+
+.layer-card-controls {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.cpr-mood-editor-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 6px;
+  border-top: 1px solid var(--cpr-audio-border);
+}

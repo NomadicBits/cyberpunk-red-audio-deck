@@ -176,7 +176,8 @@ function initFoundryGlobals() {
 
   global.foundry = {
     utils: {
-      mergeObject: (a, b) => Object.assign({}, a, b)
+      mergeObject: (a, b) => Object.assign({}, a, b),
+      deepClone: (obj) => JSON.parse(JSON.stringify(obj || {}))
     },
     audio: {
       AudioHelper: {
@@ -491,5 +492,84 @@ describe("Cyberpunk RED Night City Audio Deck Test Suite", async () => {
     assert.equal(updatedData.compressCompleted, true, "compressCompleted state must update");
     assert.equal(updatedData.activeCategoryFilter, "weather", "activeCategoryFilter must update");
     assert.equal(updatedData.searchQuery, "skyline", "searchQuery must update");
+  });
+
+  it("10. Mood Matrix Configurator: Custom track & mix volume selection, adding new mood selections, and live mix capture", async () => {
+    global.FormApplication = class {
+      constructor() {}
+      static get defaultOptions() { return {}; }
+    };
+    const { CPRMoodEditorApp } = await import("../scripts/mood-editor-app.js");
+    const controller = CPRAudioController.instance;
+    await controller.syncServerFolder(false);
+
+    const combatSounds = game.playlists.getName("NC Audio // Combat").sounds.contents;
+    const ambSounds = game.playlists.getName("NC Audio // Ambience").sounds.contents;
+    const weatherSounds = game.playlists.getName("NC Audio // Weather & Drones").sounds.contents;
+
+    // 1. Customize an existing mood ("street") with specific tracks and mix volumes
+    await controller.saveMoodPreset("street", {
+      label: "Street Exploration (Custom Mix)",
+      desc: "Custom rain + synth mix",
+      colorHex: "#00f0ff",
+      fade: 3000,
+      music: { mode: "track", soundId: combatSounds[1].id, volume: 0.72 },
+      ambience: { mode: "track", soundId: ambSounds[1].id, volume: 0.48 },
+      weather: { mode: "track", soundId: weatherSounds[1].id, volume: 0.33 },
+      stinger: "none"
+    });
+
+    await controller.triggerMood("street");
+    assert.equal(controller.channelState.music.activeSoundId, combatSounds[1].id, "Must play exact configured music track");
+    assert.equal(controller.channelState.music.volume, 0.72, "Must apply exact configured music mix volume");
+    assert.equal(controller.channelState.ambience.activeSoundId, ambSounds[1].id, "Must play exact configured ambience track");
+    assert.equal(controller.channelState.ambience.volume, 0.48, "Must apply exact configured ambience mix volume");
+    assert.equal(controller.channelState.weather.activeSoundId, weatherSounds[1].id, "Must play exact configured weather track");
+    assert.equal(controller.channelState.weather.volume, 0.33, "Must apply exact configured weather mix volume");
+
+    // 2. Add a brand-new Mood Selection to the Quick-Trigger Matrix
+    const createdMood = await controller.saveMoodPreset(null, {
+      label: "Trauma Team Extraction",
+      desc: "Sirens + heavy gunfire + rooftop rain",
+      icon: "fas fa-ambulance",
+      colorHex: "#ff003c",
+      fade: 1500,
+      music: { mode: "track", soundId: combatSounds[0].id, volume: 0.90 },
+      ambience: { mode: "off", soundId: "off", volume: 0.50 },
+      weather: { mode: "track", soundId: weatherSounds[0].id, volume: 0.65 },
+      stinger: "trauma"
+    });
+
+    assert.ok(createdMood.key.startsWith("mood_trauma_team_extraction"), "Must generate clean key for new mood selection");
+    const moodList = controller.getMoodPresetList();
+    assert.equal(moodList.length, 7, "Mood Matrix must now contain 7 selections (6 default + 1 new)");
+
+    // Trigger the newly added mood selection
+    await controller.triggerMood(createdMood.key);
+    assert.equal(controller.activeMood, createdMood.key);
+    assert.equal(controller.channelState.music.activeSoundId, combatSounds[0].id);
+    assert.equal(controller.channelState.ambience.activeSoundId, null, "Ambience was set to OFF in new mood");
+    assert.equal(controller.channelState.weather.activeSoundId, weatherSounds[0].id);
+
+    // 3. Verify CPRMoodEditorApp window data binding
+    const editorApp = new CPRMoodEditorApp({ selectedMood: createdMood.key });
+    const editorData = editorApp.getData();
+    assert.equal(editorData.editing.label, "Trauma Team Extraction");
+    assert.equal(editorData.editing.musicVolPct, 90);
+    assert.equal(editorData.editing.ambienceMode, "off");
+    assert.equal(editorData.editing.weatherVolPct, 65);
+
+    // 4. Capture Live Mix as another new mood selection
+    const capturedMood = await controller.createMoodFromActiveMix("Captured Rooftop Mix");
+    assert.equal(controller.getMoodPresetList().length, 8, "Mood Matrix must now contain 8 selections");
+    assert.equal(capturedMood.music.soundId, combatSounds[0].id);
+    assert.equal(capturedMood.weather.soundId, weatherSounds[0].id);
+
+    // 5. Delete custom mood & reset all to factory defaults
+    await controller.deleteMoodPreset(capturedMood.key);
+    assert.equal(controller.getMoodPresetList().length, 7, "Deleting custom mood must remove it from list");
+
+    await controller.resetMoodPresets();
+    assert.equal(controller.getMoodPresetList().length, 6, "Resetting must restore the 6 factory default moods");
   });
 });

@@ -3,6 +3,7 @@
  */
 
 import { CPRAudioController } from "./audio-controller.js";
+import { CPRMoodEditorApp } from "./mood-editor-app.js";
 
 export class CPRAudioDeckApp extends FormApplication {
   constructor(options = {}) {
@@ -11,6 +12,17 @@ export class CPRAudioDeckApp extends FormApplication {
     this.compressCompleted = false;
     this.activeCategoryFilter = "all";
     this.searchQuery = "";
+    CPRAudioDeckApp._activeInstance = this;
+  }
+
+  static openInstance() {
+    if (CPRAudioDeckApp._activeInstance) {
+      CPRAudioDeckApp._activeInstance.render(true);
+      return CPRAudioDeckApp._activeInstance;
+    }
+    const inst = new CPRAudioDeckApp();
+    inst.render(true);
+    return inst;
   }
 
   static get defaultOptions() {
@@ -85,14 +97,11 @@ export class CPRAudioDeckApp extends FormApplication {
     const sfxSounds = mapChannelSounds(sfxPl?.sounds.contents || [], channels.sfx.activeSoundId);
 
     const activeMood = controller.activeMood;
-    const moods = {
-      street: activeMood === "street",
-      stealth: activeMood === "stealth",
-      afterlife: activeMood === "afterlife",
-      combat: activeMood === "combat",
-      netrun: activeMood === "netrun",
-      boss: activeMood === "boss"
-    };
+    const moodList = controller.getMoodPresetList();
+    const moods = {};
+    for (const m of moodList) {
+      moods[m.key] = m.active;
+    }
 
     // Tab 2: Synced Tracks Library grouped by Playlist
     const playlistGroups = [];
@@ -163,6 +172,7 @@ export class CPRAudioDeckApp extends FormApplication {
       crossfade: controller.fadeDuration,
       activeMood,
       moods,
+      moodList,
       channels,
       channelSounds: {
         music: musicSounds,
@@ -297,12 +307,42 @@ export class CPRAudioDeckApp extends FormApplication {
 
     // Mood Pads Trigger
     html.find(".btn-trigger-mood").on("click", async (ev) => {
+      if ($(ev.target).closest(".btn-edit-single-mood").length > 0) return;
       const mood = $(ev.currentTarget).data("mood");
       html.find(".btn-trigger-mood").removeClass("active");
       $(ev.currentTarget).addClass("active");
 
       await controller.triggerMood(mood);
       this.render(false);
+    });
+
+    // Open Mood Matrix Configurator Window (Header Button)
+    html.find(".btn-open-mood-editor").on("click", (ev) => {
+      ev.preventDefault();
+      new CPRMoodEditorApp({
+        selectedMood: controller.activeMood || "street",
+        onSave: () => this.render(false)
+      }).render(true);
+    });
+
+    // Open Mood Matrix Configurator Window in "+ Add New Mood" Mode
+    html.find(".btn-add-new-mood-pad").on("click", (ev) => {
+      ev.preventDefault();
+      new CPRMoodEditorApp({
+        isCreatingNew: true,
+        onSave: () => this.render(false)
+      }).render(true);
+    });
+
+    // Edit Specific Mood Pad Gear Icon
+    html.find(".btn-edit-single-mood").on("click", (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      const moodKey = $(ev.currentTarget).data("mood");
+      new CPRMoodEditorApp({
+        selectedMood: moodKey,
+        onSave: () => this.render(false)
+      }).render(true);
     });
 
     // TAB 2: Filter & Compression Controls
