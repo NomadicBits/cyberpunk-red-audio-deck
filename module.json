@@ -1,0 +1,40 @@
+{
+  "id": "cyberpunk-red-audio-deck",
+  "title": "Cyberpunk RED: Night City Audio Deck & DM Music Manager",
+  "description": "Dark Neon Night City 4-Layer DM Soundboard, Bulk Drag-and-Drop Audio Uploader, Server Folder Sync, and Combat/Scene Audio Automation for Foundry VTT v12.",
+  "version": "1.0.0",
+  "compatibility": {
+    "minimum": "12",
+    "verified": "12"
+  },
+  "authors": [
+    {
+      "name": "NomadicBits"
+    }
+  ],
+  "relationships": {
+    "systems": [
+      {
+        "id": "cyberpunk-red-core",
+        "type": "system",
+        "compatibility": {
+          "minimum": "0.90.0"
+        }
+      }
+    ]
+  },
+  "esmodules": [
+    "scripts/main.js"
+  ],
+  "styles": [
+    "styles/cyberpunk-red-audio-deck.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "url": "https://github.com/NomadicBits/cyberpunk-red-audio-deck"
+}

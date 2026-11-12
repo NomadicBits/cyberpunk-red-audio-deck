@@ -1,0 +1,580 @@
+<div class="cpr-audio-window-inner">
+  
+  <!-- Sub Header Bar -->
+  <div class="cpr-audio-header-subbar">
+    <div class="meta-item">
+      <i class="fas fa-server"></i>
+      <span>STORAGE TARGET: <code>/Data/music/</code></span>
+    </div>
+    <div class="meta-item">
+      <i class="fas fa-bolt" style="color: var(--cpr-audio-green);"></i>
+      <span style="color: var(--cpr-audio-green);">FOUNDRY SSD AUDIO BUS: 4ms LATENCY</span>
+    </div>
+  </div>
+
+  <!-- Navigation Tabs -->
+  <div class="cpr-audio-tabs">
+    <a class="cpr-audio-tab-btn active" data-tab="mixer">
+      <i class="fas fa-sliders-h"></i> 1. Live Soundboard & Mood Mixer
+    </a>
+    <a class="cpr-audio-tab-btn" data-tab="uploader">
+      <i class="fas fa-cloud-upload-alt"></i> 2. Bulk Uploader & Auto-Organizer
+    </a>
+    <a class="cpr-audio-tab-btn" data-tab="automation">
+      <i class="fas fa-bolt"></i> 3. Combat & Scene Automation Rules
+    </a>
+  </div>
+
+  <div class="cpr-audio-body">
+
+    <!-- =====================================================================
+         TAB 1: LIVE SOUNDBOARD & MOOD MIXER
+         ===================================================================== -->
+    <div class="cpr-tab-content active" id="tab-mixer">
+      
+      <!-- Master Control Bar -->
+      <div class="cpr-master-bar">
+        <div class="cpr-master-vol-group">
+          <span><i class="fas fa-volume-up" style="color: var(--cpr-audio-cyan);"></i> MASTER OUT</span>
+          <input type="range" class="cpr-slider cpr-master-slider" style="width: 140px;" min="0" max="100" value="{{masterVolume}}">
+          <span style="font-family: var(--cpr-audio-font-mono); color: #fff;" class="cpr-master-vol-label">{{masterVolume}}%</span>
+        </div>
+
+        <div style="font-family: var(--cpr-audio-font-mono); font-size: 11px; color: var(--cpr-audio-yellow); display: flex; align-items: center; gap: 8px;">
+          <i class="fas fa-wave-square"></i>
+          <span>CROSSFADE:</span>
+          <select class="cpr-select cpr-crossfade-select" style="padding: 2px 4px; font-size: 11px;">
+            <option value="1500" {{#if (eq crossfade 1500)}}selected{{/if}}>1.5s FAST</option>
+            <option value="2500" {{#if (eq crossfade 2500)}}selected{{/if}}>2.5s S-CURVE</option>
+            <option value="4000" {{#if (eq crossfade 4000)}}selected{{/if}}>4.0s SMOOTH</option>
+          </select>
+          <span>&bull; SFX DUCKING: <strong>-8dB</strong></span>
+        </div>
+
+        <button type="button" class="cpr-panic-btn action-panic-fade">
+          <i class="fas fa-skull-crossbones"></i> PANIC FADE ALL (2s)
+        </button>
+      </div>
+
+      <!-- 4 Concurrent Channels -->
+      <div class="cpr-channel-grid">
+        
+        <!-- Channel 1: MUSIC -->
+        <div class="cpr-channel-strip channel-music" data-channel="music">
+          <div class="cpr-channel-header">
+            <span class="cpr-channel-title" style="color: var(--cpr-audio-red);">1. MUSIC</span>
+            <span class="cpr-badge {{#if channels.music.playing}}cpr-badge-playing{{else}}cpr-badge-standby{{/if}}">
+              {{#if channels.music.playing}}PLAYING{{else}}STANDBY{{/if}}
+            </span>
+          </div>
+          <div class="cpr-track-box">
+            <div class="cpr-track-name" title="{{channels.music.trackName}}">
+              {{channels.music.trackName}}
+            </div>
+            <select class="cpr-track-select channel-sound-select" data-channel="music">
+              <option value="">-- Select Music Track --</option>
+              {{#each channelSounds.music}}
+              <option value="{{this.id}}" {{#if this.playing}}selected{{/if}}>{{this.name}}</option>
+              {{/each}}
+            </select>
+            <div class="cpr-wave-progress">
+              <div class="cpr-wave-bar" style="width: {{channels.music.progress}}%;"></div>
+            </div>
+          </div>
+          <div class="cpr-fader-area">
+            <div class="cpr-fader-meta"><span>VOLUME</span><span class="vol-label">{{channels.music.volume}}%</span></div>
+            <input type="range" class="cpr-slider channel-vol-slider" data-channel="music" min="0" max="100" value="{{channels.music.volume}}">
+          </div>
+          <div class="cpr-channel-actions">
+            <button type="button" class="cpr-btn-sm btn-play {{#if channels.music.playing}}active-play{{/if}}" data-channel="music" title="Play / Pause Channel">
+              <i class="fas {{#if channels.music.playing}}fa-pause{{else}}fa-play{{/if}}"></i>
+            </button>
+            <button type="button" class="cpr-btn-sm btn-stop" data-channel="music" title="Stop Channel"><i class="fas fa-stop"></i></button>
+            <button type="button" class="cpr-btn-sm btn-loop {{#if channels.music.loop}}active-loop{{/if}}" data-channel="music" title="Toggle Loop (Repeat)">
+              <i class="fas fa-sync-alt"></i>
+            </button>
+            <button type="button" class="cpr-btn-sm btn-solo {{#if channels.music.solo}}active-solo{{/if}}" data-channel="music" title="Solo Channel (Mute other channels)">S</button>
+            <button type="button" class="cpr-btn-sm btn-mute {{#if channels.music.muted}}active-mute{{/if}}" data-channel="music" title="Mute Channel">M</button>
+          </div>
+        </div>
+
+        <!-- Channel 2: AMBIENCE -->
+        <div class="cpr-channel-strip channel-ambience" data-channel="ambience">
+          <div class="cpr-channel-header">
+            <span class="cpr-channel-title" style="color: var(--cpr-audio-cyan);">2. AMBIENCE</span>
+            <span class="cpr-badge {{#if channels.ambience.playing}}cpr-badge-looping{{else}}cpr-badge-standby{{/if}}">
+              {{#if channels.ambience.playing}}LOOPING{{else}}STANDBY{{/if}}
+            </span>
+          </div>
+          <div class="cpr-track-box">
+            <div class="cpr-track-name" title="{{channels.ambience.trackName}}">
+              {{channels.ambience.trackName}}
+            </div>
+            <select class="cpr-track-select channel-sound-select" data-channel="ambience">
+              <option value="">-- Select Ambience Loop --</option>
+              {{#each channelSounds.ambience}}
+              <option value="{{this.id}}" {{#if this.playing}}selected{{/if}}>{{this.name}}</option>
+              {{/each}}
+            </select>
+            <div class="cpr-wave-progress">
+              <div class="cpr-wave-bar" style="width: {{channels.ambience.progress}}%; background: var(--cpr-audio-cyan);"></div>
+            </div>
+          </div>
+          <div class="cpr-fader-area">
+            <div class="cpr-fader-meta"><span>VOLUME</span><span class="vol-label">{{channels.ambience.volume}}%</span></div>
+            <input type="range" class="cpr-slider channel-vol-slider" data-channel="ambience" min="0" max="100" value="{{channels.ambience.volume}}">
+          </div>
+          <div class="cpr-channel-actions">
+            <button type="button" class="cpr-btn-sm btn-play {{#if channels.ambience.playing}}active-play{{/if}}" data-channel="ambience" title="Play / Pause Channel">
+              <i class="fas {{#if channels.ambience.playing}}fa-pause{{else}}fa-play{{/if}}"></i>
+            </button>
+            <button type="button" class="cpr-btn-sm btn-stop" data-channel="ambience" title="Stop Channel"><i class="fas fa-stop"></i></button>
+            <button type="button" class="cpr-btn-sm btn-loop {{#if channels.ambience.loop}}active-loop{{/if}}" data-channel="ambience" title="Toggle Loop (Repeat)">
+              <i class="fas fa-sync-alt"></i>
+            </button>
+            <button type="button" class="cpr-btn-sm btn-solo {{#if channels.ambience.solo}}active-solo{{/if}}" data-channel="ambience" title="Solo Channel (Mute other channels)">S</button>
+            <button type="button" class="cpr-btn-sm btn-mute {{#if channels.ambience.muted}}active-mute{{/if}}" data-channel="ambience" title="Mute Channel">M</button>
+          </div>
+        </div>
+
+        <!-- Channel 3: WEATHER / DRONE -->
+        <div class="cpr-channel-strip channel-weather" data-channel="weather">
+          <div class="cpr-channel-header">
+            <span class="cpr-channel-title" style="color: var(--cpr-audio-yellow);">3. WEATHER / DRONE</span>
+            <span class="cpr-badge {{#if channels.weather.playing}}cpr-badge-looping{{else}}cpr-badge-standby{{/if}}">
+              {{#if channels.weather.playing}}LOOPING{{else}}STANDBY{{/if}}
+            </span>
+          </div>
+          <div class="cpr-track-box">
+            <div class="cpr-track-name" title="{{channels.weather.trackName}}">
+              {{channels.weather.trackName}}
+            </div>
+            <select class="cpr-track-select channel-sound-select" data-channel="weather">
+              <option value="">-- Select Drone / Weather --</option>
+              {{#each channelSounds.weather}}
+              <option value="{{this.id}}" {{#if this.playing}}selected{{/if}}>{{this.name}}</option>
+              {{/each}}
+            </select>
+            <div class="cpr-wave-progress">
+              <div class="cpr-wave-bar" style="width: {{channels.weather.progress}}%; background: var(--cpr-audio-yellow);"></div>
+            </div>
+          </div>
+          <div class="cpr-fader-area">
+            <div class="cpr-fader-meta"><span>VOLUME</span><span class="vol-label">{{channels.weather.volume}}%</span></div>
+            <input type="range" class="cpr-slider channel-vol-slider" data-channel="weather" min="0" max="100" value="{{channels.weather.volume}}">
+          </div>
+          <div class="cpr-channel-actions">
+            <button type="button" class="cpr-btn-sm btn-play {{#if channels.weather.playing}}active-play{{/if}}" data-channel="weather" title="Play / Pause Channel">
+              <i class="fas {{#if channels.weather.playing}}fa-pause{{else}}fa-play{{/if}}"></i>
+            </button>
+            <button type="button" class="cpr-btn-sm btn-stop" data-channel="weather" title="Stop Channel"><i class="fas fa-stop"></i></button>
+            <button type="button" class="cpr-btn-sm btn-loop {{#if channels.weather.loop}}active-loop{{/if}}" data-channel="weather" title="Toggle Loop (Repeat)">
+              <i class="fas fa-sync-alt"></i>
+            </button>
+            <button type="button" class="cpr-btn-sm btn-solo {{#if channels.weather.solo}}active-solo{{/if}}" data-channel="weather" title="Solo Channel (Mute other channels)">S</button>
+            <button type="button" class="cpr-btn-sm btn-mute {{#if channels.weather.muted}}active-mute{{/if}}" data-channel="weather" title="Mute Channel">M</button>
+          </div>
+        </div>
+
+        <!-- Channel 4: SFX / STINGER -->
+        <div class="cpr-channel-strip channel-sfx" data-channel="sfx">
+          <div class="cpr-channel-header">
+            <span class="cpr-channel-title" style="color: var(--cpr-audio-green);">4. SFX / STINGER</span>
+            <span class="cpr-badge cpr-badge-standby">IDLE</span>
+          </div>
+          <div class="cpr-track-box">
+            <div class="cpr-track-name" title="{{channels.sfx.trackName}}">
+              {{channels.sfx.trackName}}
+            </div>
+            <select class="cpr-track-select channel-sound-select" data-channel="sfx">
+              <option value="">-- Tactical One-Shot SFX --</option>
+              {{#each channelSounds.sfx}}
+              <option value="{{this.id}}">{{this.name}}</option>
+              {{/each}}
+            </select>
+            <div class="cpr-wave-progress">
+              <div class="cpr-wave-bar" style="width: 100%; background: var(--cpr-audio-green);"></div>
+            </div>
+          </div>
+          <div class="cpr-fader-area">
+            <div class="cpr-fader-meta"><span>VOLUME</span><span class="vol-label">{{channels.sfx.volume}}%</span></div>
+            <input type="range" class="cpr-slider channel-vol-slider" data-channel="sfx" min="0" max="100" value="{{channels.sfx.volume}}">
+          </div>
+          <div class="cpr-channel-actions">
+            <button type="button" class="cpr-btn-sm btn-play" data-channel="sfx" title="Play Selected SFX"><i class="fas fa-play"></i></button>
+            <button type="button" class="cpr-btn-sm btn-stop" data-channel="sfx" title="Stop SFX"><i class="fas fa-stop"></i></button>
+            <button type="button" class="cpr-btn-sm btn-loop" data-channel="sfx" title="Toggle Loop"><i class="fas fa-sync-alt"></i></button>
+            <button type="button" class="cpr-btn-sm btn-solo {{#if channels.sfx.solo}}active-solo{{/if}}" data-channel="sfx" title="Solo Channel">S</button>
+            <button type="button" class="cpr-btn-sm btn-mute {{#if channels.sfx.muted}}active-mute{{/if}}" data-channel="sfx" title="Mute Channel">M</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Lower Split: Mood Presets & Stinger Grid -->
+      <div class="cpr-lower-split">
+        
+        <!-- Mood Quick-Trigger Matrix -->
+        <div class="cpr-panel">
+          <div class="cpr-panel-title">
+            <span><i class="fas fa-theater-masks"></i> Mood & Situation Quick-Trigger Matrix</span>
+            <span style="font-size: 10px; color: var(--cpr-audio-text-muted); font-family: var(--cpr-audio-font-mono);">
+              ONE-CLICK CROSSFADE
+            </span>
+          </div>
+
+          <div class="cpr-mood-grid">
+            <div class="cpr-mood-pad btn-trigger-mood" data-mood="street">
+              <div class="cpr-mood-title"><i class="fas fa-walking" style="color: var(--cpr-audio-cyan);"></i> Street Exploration</div>
+              <div class="cpr-mood-desc">Lo-fi neon synths + rain ambience + distant city rumble</div>
+              <span class="cpr-mood-tag" style="background: rgba(0, 240, 255, 0.1); color: var(--cpr-audio-cyan);">READY &bull; 2.5s FADE</span>
+            </div>
+
+            <div class="cpr-mood-pad btn-trigger-mood" data-mood="stealth">
+              <div class="cpr-mood-title"><i class="fas fa-user-secret" style="color: #a855f7;"></i> Corp Stealth</div>
+              <div class="cpr-mood-desc">Sub-bass pulse + server fan drone + tense ticking</div>
+              <span class="cpr-mood-tag" style="background: rgba(168, 85, 247, 0.1); color: #c084fc;">READY &bull; 3.0s FADE</span>
+            </div>
+
+            <div class="cpr-mood-pad btn-trigger-mood" data-mood="afterlife">
+              <div class="cpr-mood-title"><i class="fas fa-cocktail" style="color: var(--cpr-audio-yellow);"></i> Fixer Lounge / Afterlife</div>
+              <div class="cpr-mood-desc">Dark industrial jazz + cocktail murmur + cigarette smoke</div>
+              <span class="cpr-mood-tag" style="background: rgba(255, 230, 0, 0.1); color: var(--cpr-audio-yellow);">READY &bull; 2.0s FADE</span>
+            </div>
+
+            <div class="cpr-mood-pad btn-trigger-mood active" data-mood="combat">
+              <div class="cpr-mood-title"><i class="fas fa-fire" style="color: var(--cpr-audio-red);"></i> Cyberpsycho Combat</div>
+              <div class="cpr-mood-desc">Heavy distorted breakbeats + alarms + adrenaline rush</div>
+              <span class="cpr-mood-tag" style="background: var(--cpr-audio-red); color: #fff; font-weight: bold;">ACTIVE NOW &bull; PLAYING</span>
+            </div>
+
+            <div class="cpr-mood-pad btn-trigger-mood" data-mood="netrun">
+              <div class="cpr-mood-title"><i class="fas fa-network-wired" style="color: #38bdf8;"></i> Netrun / Cyberspace</div>
+              <div class="cpr-mood-desc">Bitcrushed digital hum + Black ICE sweep + packet clicks</div>
+              <span class="cpr-mood-tag" style="background: rgba(56, 189, 248, 0.1); color: #38bdf8;">READY &bull; 2.0s FADE</span>
+            </div>
+
+            <div class="cpr-mood-pad btn-trigger-mood" data-mood="boss">
+              <div class="cpr-mood-title"><i class="fas fa-skull" style="color: #ec4899;"></i> Boss Fight // Smasher</div>
+              <div class="cpr-mood-desc">Relentless industrial metal + sirens + max intensity</div>
+              <span class="cpr-mood-tag" style="background: rgba(236, 72, 153, 0.1); color: #f472b6;">READY &bull; 1.5s FADE</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Instant Stinger Soundboard Grid -->
+        <div class="cpr-panel">
+          <div class="cpr-panel-title">
+            <span><i class="fas fa-th"></i> Stinger Pad Grid (Instant SFX)</span>
+            <span style="font-size: 10px; color: var(--cpr-audio-green); font-family: var(--cpr-audio-font-mono);">
+              ZERO-LATENCY ONE-SHOTS
+            </span>
+          </div>
+
+          <div class="cpr-stinger-grid">
+            <div class="cpr-stinger-pad red btn-play-stinger" data-stinger="trauma">
+              <div class="cpr-stinger-title"><i class="fas fa-ambulance" style="color: var(--cpr-audio-red);"></i> Trauma Team Siren</div>
+              <div class="cpr-stinger-meta">HOTKEY: [ 1 ] &bull; SYNTH/WAV</div>
+            </div>
+
+            <div class="cpr-stinger-pad cyan btn-play-stinger" data-stinger="ncpd">
+              <div class="cpr-stinger-title"><i class="fas fa-shield-alt" style="color: var(--cpr-audio-cyan);"></i> NCPD Alarm Pulse</div>
+              <div class="cpr-stinger-meta">HOTKEY: [ 2 ] &bull; SYNTH/WAV</div>
+            </div>
+
+            <div class="cpr-stinger-pad yellow btn-play-stinger" data-stinger="emp">
+              <div class="cpr-stinger-title"><i class="fas fa-bolt" style="color: var(--cpr-audio-yellow);"></i> EMP Blast Shockwave</div>
+              <div class="cpr-stinger-meta">HOTKEY: [ 3 ] &bull; SYNTH/WAV</div>
+            </div>
+
+            <div class="cpr-stinger-pad green btn-play-stinger" data-stinger="breach">
+              <div class="cpr-stinger-title"><i class="fas fa-terminal" style="color: var(--cpr-audio-green);"></i> Breach Complete</div>
+              <div class="cpr-stinger-meta">HOTKEY: [ 4 ] &bull; SYNTH/WAV</div>
+            </div>
+
+            <div class="cpr-stinger-pad red btn-play-stinger" data-stinger="flatline">
+              <div class="cpr-stinger-title"><i class="fas fa-heartbeat" style="color: var(--cpr-audio-red);"></i> Flatline Beep</div>
+              <div class="cpr-stinger-meta">HOTKEY: [ 5 ] &bull; SYNTH/WAV</div>
+            </div>
+
+            <div class="cpr-stinger-pad cyan btn-play-stinger" data-stinger="door">
+              <div class="cpr-stinger-title"><i class="fas fa-unlock-alt" style="color: var(--cpr-audio-cyan);"></i> Door Hack Bypass</div>
+              <div class="cpr-stinger-meta">HOTKEY: [ 6 ] &bull; SYNTH/WAV</div>
+            </div>
+
+            <div class="cpr-stinger-pad yellow btn-play-stinger" data-stinger="gunfire">
+              <div class="cpr-stinger-title"><i class="fas fa-crosshairs" style="color: var(--cpr-audio-yellow);"></i> Distant Gunfire</div>
+              <div class="cpr-stinger-meta">HOTKEY: [ 7 ] &bull; SYNTH/WAV</div>
+            </div>
+
+            <div class="cpr-stinger-pad red btn-play-stinger" data-stinger="panic">
+              <div class="cpr-stinger-title"><i class="fas fa-users" style="color: var(--cpr-audio-red);"></i> Crowd Panic / Riot</div>
+              <div class="cpr-stinger-meta">HOTKEY: [ 8 ] &bull; SYNTH/WAV</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- =====================================================================
+         TAB 2: BULK UPLOADER & AUTO-ORGANIZER
+         ===================================================================== -->
+    <div class="cpr-tab-content" id="tab-uploader">
+      
+      <!-- Uploader Top Bar -->
+      <div class="cpr-uploader-bar">
+        <div class="cpr-folder-select-group">
+          <span><i class="fas fa-folder-open" style="color: var(--cpr-audio-cyan);"></i> TARGET FOLDER:</span>
+          <select class="cpr-select target-folder-select">
+            <option value="music/combat">Data/music/combat/ (Combat Playlists)</option>
+            <option value="music/ambience">Data/music/ambience/ (Environmental Loops)</option>
+            <option value="music/weather">Data/music/weather/ (Weather & Drones)</option>
+            <option value="music/clubs">Data/music/clubs/ (Night City Venues)</option>
+            <option value="music/sfx">Data/music/sfx/ (Tactical Stingers)</option>
+            <option value="music/netrunning">Data/music/netrunning/ (Cyberspace Audio)</option>
+          </select>
+          <button type="button" class="cpr-btn-action action-new-folder">+ NEW FOLDER</button>
+        </div>
+
+        <button type="button" class="cpr-btn-sync action-sync-server">
+          <i class="fas fa-bolt"></i> SYNC EXISTING SERVER FOLDER
+        </button>
+      </div>
+
+      <!-- Drag & Drop Dropzone -->
+      <div class="cpr-dropzone">
+        <input type="file" multiple class="cpr-file-input" style="display: none;" accept=".mp3,.ogg,.wav,.flac,.webm,.m4a,.opus">
+        <i class="fas fa-file-audio cpr-dropzone-icon"></i>
+        <div class="cpr-dropzone-title">DRAG & DROP MULTIPLE AUDIO FILES HERE</div>
+        <div class="cpr-dropzone-sub">
+          SUPPORTED: MP3 &bull; OGG &bull; WAV &bull; FLAC &bull; WEBM &bull; DIRECT HIGH-SPEED STREAMING &bull; ZERO CLIENT LAG
+        </div>
+      </div>
+
+      <!-- Filter & Compression Toolbar -->
+      <div class="cpr-filter-bar">
+        <div class="cpr-search-box">
+          <i class="fas fa-search" style="color: var(--cpr-audio-cyan); margin-right: 6px;"></i>
+          <input type="text" class="cpr-input filter-search-input" placeholder="Search tracks..." value="{{searchQuery}}">
+        </div>
+
+        <div class="cpr-filter-pills">
+          <a class="cpr-filter-pill {{#if (eq activeCategoryFilter 'all')}}active{{/if}}" data-filter="all">ALL</a>
+          <a class="cpr-filter-pill {{#if (eq activeCategoryFilter 'music')}}active{{/if}}" data-filter="music">MUSIC</a>
+          <a class="cpr-filter-pill {{#if (eq activeCategoryFilter 'ambience')}}active{{/if}}" data-filter="ambience">AMBIENCE</a>
+          <a class="cpr-filter-pill {{#if (eq activeCategoryFilter 'weather')}}active{{/if}}" data-filter="weather">WEATHER</a>
+          <a class="cpr-filter-pill {{#if (eq activeCategoryFilter 'sfx')}}active{{/if}}" data-filter="sfx">SFX</a>
+        </div>
+
+        <button type="button" class="cpr-btn-compress btn-compress-toggle {{#if compressCompleted}}active{{/if}}">
+          <i class="fas fa-compress-alt"></i>
+          {{#if compressCompleted}}[SHOW COMPLETED TRACKS]{{else}}[COMPRESS / HIDE COMPLETED TRACKS]{{/if}}
+        </button>
+
+        <span class="cpr-filtered-count">Showing {{totalTrackCount}} Track(s)</span>
+      </div>
+
+      <!-- Scrollable Synced Library & Upload Queue Table with Sticky Header -->
+      <div class="cpr-queue-container {{#if compressCompleted}}compressed-view{{/if}}">
+        <table class="cpr-queue-table">
+          <thead>
+            <tr>
+              <th style="width: 28%;">Track Filename</th>
+              <th style="width: 22%;">Target Playlist</th>
+              <th style="width: 14%;">Channel Type</th>
+              <th style="width: 8%;">Loop</th>
+              <th style="width: 8%;">Vol</th>
+              <th style="width: 12%;">Status</th>
+              <th style="width: 8%;">Play</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each playlistGroups}}
+            <tr class="cpr-group-header" data-category="{{this.channelType}}" data-group="{{this.playlistName}}">
+              <td colspan="7">
+                <i class="fas fa-chevron-down group-chevron"></i>
+                <strong style="color: var(--cpr-audio-cyan);">{{this.playlistName}}</strong>
+                <span style="color: var(--cpr-audio-text-muted); font-size: 10px; margin-left: 6px;">({{this.count}} Tracks)</span>
+              </td>
+            </tr>
+            {{#each this.tracks}}
+            <tr class="cpr-track-row" data-category="{{../channelType}}" data-synced="true" data-group="{{../playlistName}}" data-track-name="{{this.name}}">
+              <td><strong style="color: #fff;">{{this.name}}</strong></td>
+              <td style="color: var(--cpr-audio-cyan); font-size: 11px;">{{this.playlistName}}</td>
+              <td><span class="cpr-pill cpr-pill-{{this.channelType}}">{{this.channelLabel}}</span></td>
+              <td style="color: {{#if this.repeat}}var(--cpr-audio-green){{else}}var(--cpr-audio-text-muted){{/if}}; font-family: var(--cpr-audio-font-mono);">
+                {{#if this.repeat}}YES{{else}}NO{{/if}}
+              </td>
+              <td style="font-family: var(--cpr-audio-font-mono);">{{this.volumePercent}}%</td>
+              <td>
+                <span style="color: var(--cpr-audio-green); font-size: 10px; font-weight: bold;">
+                  <i class="fas fa-check"></i> SYNCED
+                </span>
+              </td>
+              <td>
+                <button type="button" class="cpr-btn-action btn-preview-track" data-path="{{this.path}}" title="Preview Sound">
+                  <i class="fas fa-play"></i>
+                </button>
+              </td>
+            </tr>
+            {{/each}}
+            {{else}}
+            <tr>
+              <td colspan="7" style="text-align: center; color: var(--cpr-audio-text-muted); padding: 18px;">
+                No synced tracks loaded. Click <strong>SYNC EXISTING SERVER FOLDER</strong> or drop audio files above.
+              </td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- =====================================================================
+         TAB 3: COMBAT & SCENE AUTOMATION RULES
+         ===================================================================== -->
+    <div class="cpr-tab-content" id="tab-automation">
+      
+      <!-- Live Monitored Hooks Bar -->
+      <div class="cpr-automation-status">
+        <div style="font-size: 13px; font-weight: 700; color: #fff;">
+          <i class="fas fa-satellite-dish" style="color: var(--cpr-audio-green); margin-right: 8px;"></i>
+          AUTOMATION ENGINE: <span style="color: var(--cpr-audio-green);">ACTIVE & MONITORING HOOKS</span>
+        </div>
+
+        <div class="cpr-chip-group">
+          <span class="cpr-chip">combatStart</span>
+          <span class="cpr-chip">deleteCombat</span>
+          <span class="cpr-chip">updateCombat</span>
+          <span class="cpr-chip">canvasReady</span>
+          <span class="cpr-chip">updateActor</span>
+        </div>
+      </div>
+
+      <!-- Automation Rules Cards Grid -->
+      <div class="cpr-rules-grid">
+        
+        <!-- Rule 1: Combat Start -->
+        <div class="cpr-rule-card active-red">
+          <div class="cpr-rule-header">
+            <div class="cpr-rule-title">
+              <i class="fas fa-fist-raised" style="color: var(--cpr-audio-red);"></i> On Combat Start (Initiative)
+            </div>
+            <span class="cpr-rule-badge cpr-badge-active btn-toggle-rule" data-rule="autoCombatStart">
+              {{#if automation.autoCombatStart}}ACTIVE{{else}}DISABLED{{/if}}
+            </span>
+          </div>
+          <div class="cpr-rule-body">
+            <div class="cpr-rule-row"><span class="k">Foundry Hook:</span><span class="v">Hooks.on("combatStart")</span></div>
+            <div class="cpr-rule-row"><span class="k">Action:</span><span class="v">Auto-Crossfade to Combat Playlist</span></div>
+            <div class="cpr-rule-row"><span class="k">Target Playlist:</span><span class="v">NC Audio // Combat</span></div>
+            <div class="cpr-rule-row"><span class="k">Crossfade:</span><span class="v">2.5s Fade Out / 2.0s In</span></div>
+            <div class="cpr-rule-row"><span class="k">Ambience Ducking:</span><span class="v">-8 dB during combat</span></div>
+          </div>
+        </div>
+
+        <!-- Rule 2: Combat End -->
+        <div class="cpr-rule-card active-green">
+          <div class="cpr-rule-header">
+            <div class="cpr-rule-title">
+              <i class="fas fa-shield-virus" style="color: var(--cpr-audio-green);"></i> On Combat End (Encounter Over)
+            </div>
+            <span class="cpr-rule-badge cpr-badge-active btn-toggle-rule" data-rule="autoCombatEnd">
+              {{#if automation.autoCombatEnd}}ACTIVE{{else}}DISABLED{{/if}}
+            </span>
+          </div>
+          <div class="cpr-rule-body">
+            <div class="cpr-rule-row"><span class="k">Foundry Hook:</span><span class="v">Hooks.on("deleteCombat")</span></div>
+            <div class="cpr-rule-row"><span class="k">Action:</span><span class="v">Restore Scene Exploration Track</span></div>
+            <div class="cpr-rule-row"><span class="k">Fade Out:</span><span class="v">3.0s Smooth Decay</span></div>
+            <div class="cpr-rule-row"><span class="k">Resume Mode:</span><span class="v">Restore prior scene state</span></div>
+            <div class="cpr-rule-row"><span class="k">Victory Stinger:</span><span class="v">Play Breach Complete / Stinger</span></div>
+          </div>
+        </div>
+
+        <!-- Rule 3: Low HP -->
+        <div class="cpr-rule-card active-yellow">
+          <div class="cpr-rule-header">
+            <div class="cpr-rule-title">
+              <i class="fas fa-heartbeat" style="color: var(--cpr-audio-yellow);"></i> Critical HP / Cyberpsychosis
+            </div>
+            <span class="cpr-rule-badge cpr-badge-active btn-toggle-rule" data-rule="autoCriticalHP">
+              {{#if automation.autoCriticalHP}}ACTIVE{{else}}DISABLED{{/if}}
+            </span>
+          </div>
+          <div class="cpr-rule-body">
+            <div class="cpr-rule-row"><span class="k">Foundry Hook:</span><span class="v">Hooks.on("updateActor")</span></div>
+            <div class="cpr-rule-row"><span class="k">Condition:</span><span class="v">PC HP &lt; 25% or Humanity &lt; 10</span></div>
+            <div class="cpr-rule-row"><span class="k">Action:</span><span class="v">Trigger Heartbeat / Flatline Tone</span></div>
+            <div class="cpr-rule-row"><span class="k">Volume:</span><span class="v">45% Over Master Mix</span></div>
+          </div>
+        </div>
+
+        <!-- Rule 4: Boss Turn -->
+        <div class="cpr-rule-card active-cyan">
+          <div class="cpr-rule-header">
+            <div class="cpr-rule-title">
+              <i class="fas fa-skull" style="color: #c084fc;"></i> Elite / Boss Round Turn
+            </div>
+            <span class="cpr-rule-badge cpr-badge-active btn-toggle-rule" data-rule="autoBossTurn">
+              {{#if automation.autoBossTurn}}ACTIVE{{else}}DISABLED{{/if}}
+            </span>
+          </div>
+          <div class="cpr-rule-body">
+            <div class="cpr-rule-row"><span class="k">Foundry Hook:</span><span class="v">Hooks.on("updateCombat")</span></div>
+            <div class="cpr-rule-row"><span class="k">Condition:</span><span class="v">Combatant has tag #boss or #elite</span></div>
+            <div class="cpr-rule-row"><span class="k">Action:</span><span class="v">EMP Shockwave Stinger + Music Duck</span></div>
+            <div class="cpr-rule-row"><span class="k">Ducking:</span><span class="v">Duck music -10dB for 2s</span></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Scene Audio Preset Binder -->
+      <div class="cpr-scene-box">
+        <div class="cpr-panel-title">
+          <span><i class="fas fa-map-marked-alt"></i> Scene Audio Preset Binder (One-Click Auto-Atmosphere)</span>
+          <button type="button" class="cpr-btn-action action-bind-active-scene">+ BIND CURRENT ACTIVE SCENE</button>
+        </div>
+
+        <table class="cpr-scene-table">
+          <thead>
+            <tr>
+              <th>Scene Name</th>
+              <th>Music Layer Binding</th>
+              <th>Ambience Layer Binding</th>
+              <th>Weather Drone</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each scenesList}}
+            <tr>
+              <td>
+                <strong style="color: #fff;">
+                  <i class="fas fa-map-pin" style="color: var(--cpr-audio-red); margin-right: 5px;"></i> {{this.name}}
+                </strong>
+                {{#if this.isActive}}<span class="cpr-pill cpr-pill-ambience" style="margin-left: 6px;">ACTIVE</span>{{/if}}
+              </td>
+              <td style="color: var(--cpr-audio-cyan);">{{this.musicBinding}}</td>
+              <td style="color: var(--cpr-audio-yellow);">{{this.ambienceBinding}}</td>
+              <td style="color: var(--cpr-audio-text-muted);">{{this.droneBinding}}</td>
+              <td>
+                <button type="button" class="cpr-btn-action btn-apply-scene" data-scene-id="{{this.id}}">
+                  TRIGGER
+                </button>
+              </td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

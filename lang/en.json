@@ -1,0 +1,18 @@
+{
+  "CPRAUDIO.Title": "Night City Audio Deck // v12 DM Sound System",
+  "CPRAUDIO.OpenDeck": "NIGHT CITY AUDIO DECK",
+  "CPRAUDIO.TabMixer": "Live Soundboard & Mood Mixer",
+  "CPRAUDIO.TabUploader": "Bulk Uploader & Auto-Organizer",
+  "CPRAUDIO.TabAutomation": "Combat & Scene Automation Rules",
+  "CPRAUDIO.MasterOut": "MASTER OUT",
+  "CPRAUDIO.PanicFade": "PANIC FADE ALL (2s)",
+  "CPRAUDIO.SyncServer": "SYNC EXISTING SERVER FOLDER",
+  "CPRAUDIO.DragDropText": "DRAG & DROP MULTIPLE AUDIO FILES HERE",
+  "CPRAUDIO.DragDropSub": "SUPPORTED: MP3 • OGG • WAV • FLAC • WEBM • DIRECT SERVER STREAMING",
+  "CPRAUDIO.AutoSync": "AUTO-SYNC TO FOUNDRY PLAYLISTS",
+  "CPRAUDIO.BindActiveScene": "BIND CURRENT ACTIVE SCENE",
+  "CPRAUDIO.ChannelMusic": "1. MUSIC",
+  "CPRAUDIO.ChannelAmbience": "2. AMBIENCE",
+  "CPRAUDIO.ChannelWeather": "3. WEATHER / DRONE",
+  "CPRAUDIO.ChannelSFX": "4. SFX / STINGER"
+}

@@ -1,0 +1,959 @@
+/* Cyberpunk RED: Night City Audio Deck UI Theme (Foundry VTT v12) */
+
+:root {
+  --cpr-audio-bg: #0b0d14;
+  --cpr-audio-surface: #0f121b;
+  --cpr-audio-card: #131622;
+  --cpr-audio-card-hover: #191d2e;
+  --cpr-audio-red: #ff003c;
+  --cpr-audio-red-glow: rgba(255, 0, 60, 0.45);
+  --cpr-audio-cyan: #00f0ff;
+  --cpr-audio-cyan-glow: rgba(0, 240, 255, 0.45);
+  --cpr-audio-yellow: #ffe600;
+  --cpr-audio-green: #00ff66;
+  --cpr-audio-green-glow: rgba(0, 255, 102, 0.4);
+  --cpr-audio-text: #e2e8f0;
+  --cpr-audio-text-muted: #8892b0;
+  --cpr-audio-border: #252a3d;
+  --cpr-audio-font-display: 'Rajdhani', 'Segoe UI', Tahoma, sans-serif;
+  --cpr-audio-font-mono: 'Share Tech Mono', monospace, Consolas;
+}
+
+/* Sidebar Launch Button */
+.cpr-deck-sidebar-btn {
+  background: linear-gradient(135deg, rgba(255, 0, 60, 0.9) 0%, rgba(160, 0, 38, 0.95) 100%) !important;
+  color: #fff !important;
+  border: 1px solid var(--cpr-audio-red) !important;
+  border-radius: 4px !important;
+  padding: 8px 10px !important;
+  font-family: var(--cpr-audio-font-display) !important;
+  font-weight: 800 !important;
+  font-size: 13px !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  cursor: pointer !important;
+  box-shadow: 0 0 14px var(--cpr-audio-red-glow) !important;
+  margin: 6px 0 !important;
+  width: 100% !important;
+  transition: all 0.2s ease !important;
+}
+
+.cpr-deck-sidebar-btn:hover {
+  box-shadow: 0 0 20px rgba(255, 0, 60, 0.8) !important;
+  transform: translateY(-1px);
+}
+
+/* Application Window */
+.app.cpr-audio-window {
+  background: transparent !important;
+  box-shadow: 0 0 30px rgba(0,0,0,0.9), 0 0 15px rgba(255, 0, 60, 0.35) !important;
+  border: 1px solid var(--cpr-audio-red) !important;
+  border-radius: 6px !important;
+  overflow: hidden !important;
+}
+
+.cpr-audio-window .window-header {
+  background: linear-gradient(90deg, #180509 0%, #0d0f17 100%) !important;
+  border-bottom: 2px solid var(--cpr-audio-red) !important;
+  padding: 8px 14px !important;
+  color: #fff !important;
+  font-family: var(--cpr-audio-font-display) !important;
+}
+
+.cpr-audio-window .window-header .window-title {
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  letter-spacing: 1.5px !important;
+  text-transform: uppercase !important;
+  color: #fff !important;
+}
+
+.cpr-audio-window .window-content {
+  background: rgba(11, 13, 20, 0.98) !important;
+  color: var(--cpr-audio-text) !important;
+  font-family: var(--cpr-audio-font-display) !important;
+  padding: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  height: calc(100% - 38px) !important;
+}
+
+/* Window Custom Header Sub-bar */
+.cpr-audio-header-subbar {
+  background: #080a10;
+  border-bottom: 1px solid var(--cpr-audio-border);
+  padding: 6px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--cpr-audio-font-mono);
+  font-size: 11px;
+}
+
+.cpr-audio-header-subbar .meta-item {
+  color: var(--cpr-audio-cyan);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Navigation Tabs */
+.cpr-audio-tabs {
+  display: flex;
+  background: #080a10;
+  border-bottom: 1px solid var(--cpr-audio-border);
+  padding: 0 12px;
+}
+
+.cpr-audio-tab-btn {
+  padding: 10px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--cpr-audio-text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.cpr-audio-tab-btn:hover {
+  color: var(--cpr-audio-cyan);
+}
+
+.cpr-audio-tab-btn.active {
+  color: #fff;
+  border-bottom: 2px solid var(--cpr-audio-red);
+  background: rgba(255, 0, 60, 0.08);
+  text-shadow: 0 0 8px var(--cpr-audio-red-glow);
+}
+
+.cpr-audio-tab-btn.active i {
+  color: var(--cpr-audio-red);
+}
+
+/* Tab Views Container */
+.cpr-audio-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+}
+
+.cpr-tab-content {
+  display: none;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+}
+
+.cpr-tab-content.active {
+  display: flex;
+}
+
+/* =========================================================================
+   TAB 1: LIVE SOUNDBOARD & MOOD MIXER
+   ========================================================================= */
+
+.cpr-master-bar {
+  background: var(--cpr-audio-surface);
+  border: 1px solid var(--cpr-audio-border);
+  border-radius: 4px;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.cpr-master-vol-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--cpr-audio-text-muted);
+}
+
+.cpr-slider {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 6px;
+  background: #1c2130;
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+}
+
+.cpr-slider::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--cpr-audio-cyan);
+  box-shadow: 0 0 8px var(--cpr-audio-cyan-glow);
+  cursor: pointer;
+}
+
+.cpr-panic-btn {
+  background: linear-gradient(135deg, #ff003c 0%, #aa0024 100%);
+  color: #fff;
+  border: 1px solid #ff3366;
+  border-radius: 4px;
+  padding: 6px 14px;
+  font-family: var(--cpr-audio-font-display);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 0 12px var(--cpr-audio-red-glow);
+  transition: all 0.15s ease;
+}
+
+.cpr-panic-btn:hover {
+  box-shadow: 0 0 18px rgba(255, 0, 60, 0.8);
+  transform: translateY(-1px);
+}
+
+/* 4-Channel Grid */
+.cpr-channel-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.cpr-channel-strip {
+  background: var(--cpr-audio-card);
+  border: 1px solid var(--cpr-audio-border);
+  border-radius: 4px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+}
+
+.cpr-channel-strip.channel-music { border-top: 3px solid var(--cpr-audio-red); }
+.cpr-channel-strip.channel-ambience { border-top: 3px solid var(--cpr-audio-cyan); }
+.cpr-channel-strip.channel-weather { border-top: 3px solid var(--cpr-audio-yellow); }
+.cpr-channel-strip.channel-sfx { border-top: 3px solid var(--cpr-audio-green); }
+
+.cpr-channel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cpr-channel-title {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.cpr-badge {
+  font-size: 9px;
+  font-family: var(--cpr-audio-font-mono);
+  padding: 1px 5px;
+  border-radius: 2px;
+  font-weight: bold;
+}
+
+.cpr-badge-playing { background: rgba(0, 255, 102, 0.15); color: var(--cpr-audio-green); border: 1px solid var(--cpr-audio-green); }
+.cpr-badge-looping { background: rgba(0, 240, 255, 0.15); color: var(--cpr-audio-cyan); border: 1px solid var(--cpr-audio-cyan); }
+.cpr-badge-standby { background: rgba(255, 255, 255, 0.08); color: var(--cpr-audio-text-muted); }
+
+.cpr-track-box {
+  background: #090b10;
+  border: 1px solid #1c202d;
+  border-radius: 3px;
+  padding: 6px 8px;
+}
+
+.cpr-track-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 3px;
+}
+
+.cpr-track-select {
+  width: 100%;
+  background: #0d0f17;
+  color: var(--cpr-audio-cyan);
+  border: 1px solid var(--cpr-audio-border);
+  font-size: 11px;
+  font-family: var(--cpr-audio-font-mono);
+  padding: 2px 4px;
+  border-radius: 2px;
+  margin-top: 4px;
+}
+
+.cpr-wave-progress {
+  height: 4px;
+  background: #181d2a;
+  border-radius: 2px;
+  margin: 5px 0 3px 0;
+  overflow: hidden;
+}
+
+.cpr-wave-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--cpr-audio-red), var(--cpr-audio-cyan));
+  width: 50%;
+  transition: width 0.3s ease;
+}
+
+.cpr-fader-area {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.cpr-fader-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  font-family: var(--cpr-audio-font-mono);
+  color: var(--cpr-audio-text-muted);
+}
+
+.cpr-channel-actions {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.cpr-btn-sm {
+  flex: 1;
+  height: 24px;
+  background: #171b26;
+  border: 1px solid var(--cpr-audio-border);
+  border-radius: 3px;
+  color: var(--cpr-audio-text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cpr-btn-sm:hover {
+  border-color: var(--cpr-audio-cyan);
+  color: var(--cpr-audio-cyan);
+}
+
+/* Active Control Button Styles */
+.cpr-btn-sm.active-play {
+  background: rgba(0, 255, 102, 0.25) !important;
+  color: var(--cpr-audio-green) !important;
+  border-color: var(--cpr-audio-green) !important;
+  box-shadow: 0 0 6px var(--cpr-audio-green-glow) !important;
+}
+
+.cpr-btn-sm.active-solo {
+  background: rgba(0, 240, 255, 0.25) !important;
+  color: var(--cpr-audio-cyan) !important;
+  border-color: var(--cpr-audio-cyan) !important;
+  box-shadow: 0 0 8px var(--cpr-audio-cyan-glow) !important;
+}
+
+.cpr-btn-sm.active-mute {
+  background: rgba(255, 0, 60, 0.3) !important;
+  color: var(--cpr-audio-red) !important;
+  border-color: var(--cpr-audio-red) !important;
+  box-shadow: 0 0 8px var(--cpr-audio-red-glow) !important;
+}
+
+.cpr-btn-sm.active-loop {
+  background: rgba(0, 255, 102, 0.2) !important;
+  color: var(--cpr-audio-green) !important;
+  border-color: var(--cpr-audio-green) !important;
+}
+
+/* Lower Split: Mood & Stinger Pads */
+.cpr-lower-split {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 12px;
+  flex: 1;
+}
+
+.cpr-panel {
+  background: var(--cpr-audio-card);
+  border: 1px solid var(--cpr-audio-border);
+  border-radius: 4px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cpr-panel-title {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--cpr-audio-cyan);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--cpr-audio-border);
+  padding-bottom: 6px;
+}
+
+/* Mood Grid */
+.cpr-mood-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  flex: 1;
+}
+
+.cpr-mood-pad {
+  background: #10131d;
+  border: 1px solid #23293d;
+  border-left: 4px solid #333d59;
+  border-radius: 4px;
+  padding: 8px 10px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.2s ease;
+}
+
+.cpr-mood-pad:hover {
+  background: #161b29;
+  border-color: var(--cpr-audio-cyan);
+}
+
+.cpr-mood-pad.active {
+  background: #1e090f;
+  border-color: var(--cpr-audio-red);
+  border-left: 4px solid var(--cpr-audio-red);
+  box-shadow: 0 0 12px var(--cpr-audio-red-glow);
+}
+
+.cpr-mood-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cpr-mood-desc {
+  font-size: 10px;
+  color: var(--cpr-audio-text-muted);
+  margin-top: 3px;
+  line-height: 1.3;
+}
+
+.cpr-mood-tag {
+  align-self: flex-start;
+  font-family: var(--cpr-audio-font-mono);
+  font-size: 9px;
+  padding: 1px 4px;
+  border-radius: 2px;
+  margin-top: 6px;
+}
+
+/* Stinger Grid */
+.cpr-stinger-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 7px;
+  flex: 1;
+}
+
+.cpr-stinger-pad {
+  background: #10121a;
+  border: 1px solid #232838;
+  border-radius: 4px;
+  padding: 8px 10px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  transition: all 0.15s ease;
+}
+
+.cpr-stinger-pad:hover {
+  transform: translateY(-1px);
+}
+
+.cpr-stinger-pad.red:hover, .cpr-stinger-pad.active { border-color: var(--cpr-audio-red); box-shadow: 0 0 10px var(--cpr-audio-red-glow); }
+.cpr-stinger-pad.cyan:hover { border-color: var(--cpr-audio-cyan); box-shadow: 0 0 10px var(--cpr-audio-cyan-glow); }
+.cpr-stinger-pad.yellow:hover { border-color: var(--cpr-audio-yellow); box-shadow: 0 0 10px rgba(255, 230, 0, 0.4); }
+.cpr-stinger-pad.green:hover { border-color: var(--cpr-audio-green); box-shadow: 0 0 10px var(--cpr-audio-green-glow); }
+
+.cpr-stinger-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.cpr-stinger-meta {
+  font-family: var(--cpr-audio-font-mono);
+  font-size: 9px;
+  color: var(--cpr-audio-text-muted);
+}
+
+/* =========================================================================
+   TAB 2: BULK UPLOADER & ORGANIZER
+   ========================================================================= */
+
+.cpr-uploader-bar {
+  background: var(--cpr-audio-surface);
+  border: 1px solid var(--cpr-audio-border);
+  border-radius: 4px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cpr-folder-select-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.cpr-select {
+  background: #090b12;
+  border: 1px solid var(--cpr-audio-border);
+  color: var(--cpr-audio-cyan);
+  font-family: var(--cpr-audio-font-mono);
+  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: 3px;
+  outline: none;
+}
+
+.cpr-input {
+  background: #090b12;
+  border: 1px solid var(--cpr-audio-border);
+  color: #fff;
+  font-family: var(--cpr-audio-font-mono);
+  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: 3px;
+  outline: none;
+}
+
+.cpr-btn-sync {
+  background: #171c2b;
+  color: var(--cpr-audio-yellow);
+  border: 1px solid var(--cpr-audio-yellow);
+  border-radius: 4px;
+  padding: 6px 14px;
+  font-family: var(--cpr-audio-font-display);
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 0 8px rgba(255, 230, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.cpr-btn-sync:hover {
+  background: #232a42;
+  box-shadow: 0 0 14px rgba(255, 230, 0, 0.5);
+}
+
+.cpr-dropzone {
+  background: rgba(13, 16, 24, 0.7);
+  border: 2px dashed var(--cpr-audio-cyan);
+  border-radius: 6px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: inset 0 0 20px rgba(0, 240, 255, 0.05), 0 0 15px rgba(0, 240, 255, 0.1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cpr-dropzone.dragover {
+  border-color: var(--cpr-audio-green);
+  background: rgba(0, 255, 102, 0.08);
+  box-shadow: 0 0 20px var(--cpr-audio-green-glow);
+}
+
+.cpr-dropzone-icon {
+  font-size: 32px;
+  color: var(--cpr-audio-cyan);
+  filter: drop-shadow(0 0 10px var(--cpr-audio-cyan-glow));
+}
+
+.cpr-dropzone-title {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+.cpr-dropzone-sub {
+  font-size: 11px;
+  color: var(--cpr-audio-text-muted);
+  font-family: var(--cpr-audio-font-mono);
+}
+
+/* Tab 2 Filter & Compression Bar */
+.cpr-filter-bar {
+  background: #0f121b;
+  border: 1px solid var(--cpr-audio-border);
+  border-radius: 4px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.cpr-search-box {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 160px;
+}
+
+.filter-search-input {
+  width: 100%;
+  font-size: 11px;
+}
+
+.cpr-filter-pills {
+  display: flex;
+  gap: 4px;
+}
+
+.cpr-filter-pill {
+  background: #171b26;
+  border: 1px solid var(--cpr-audio-border);
+  border-radius: 3px;
+  padding: 3px 8px;
+  font-size: 10px;
+  font-weight: 800;
+  font-family: var(--cpr-audio-font-mono);
+  color: var(--cpr-audio-text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-decoration: none;
+}
+
+.cpr-filter-pill:hover,
+.cpr-filter-pill.active {
+  background: rgba(0, 240, 255, 0.15);
+  border-color: var(--cpr-audio-cyan);
+  color: var(--cpr-audio-cyan);
+  box-shadow: 0 0 6px var(--cpr-audio-cyan-glow);
+}
+
+.cpr-btn-compress {
+  background: #1b1e2a;
+  border: 1px solid #3a415a;
+  border-radius: 3px;
+  padding: 4px 10px;
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--cpr-audio-yellow);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.15s ease;
+}
+
+.cpr-btn-compress:hover,
+.cpr-btn-compress.active {
+  background: rgba(255, 230, 0, 0.15);
+  border-color: var(--cpr-audio-yellow);
+  box-shadow: 0 0 8px rgba(255, 230, 0, 0.3);
+}
+
+.cpr-filtered-count {
+  font-family: var(--cpr-audio-font-mono);
+  font-size: 10px;
+  color: var(--cpr-audio-text-muted);
+  margin-left: auto;
+}
+
+/* Scrollable Queue Container with Sticky Header & Sleek Neon Scrollbar */
+.cpr-queue-container {
+  background: var(--cpr-audio-card);
+  border: 1px solid var(--cpr-audio-border);
+  border-radius: 4px;
+  max-height: 290px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--cpr-audio-red) #090b12;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.cpr-queue-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.cpr-queue-container::-webkit-scrollbar-track {
+  background: #090b12;
+}
+
+.cpr-queue-container::-webkit-scrollbar-thumb {
+  background: var(--cpr-audio-red);
+  border-radius: 3px;
+  box-shadow: 0 0 6px var(--cpr-audio-red-glow);
+}
+
+.cpr-queue-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  text-align: left;
+}
+
+.cpr-queue-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #141824;
+  color: var(--cpr-audio-text-muted);
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-size: 10px;
+  padding: 8px 12px;
+  border-bottom: 2px solid var(--cpr-audio-red);
+}
+
+.cpr-group-header {
+  background: #0d101a;
+  cursor: pointer;
+  border-bottom: 1px solid var(--cpr-audio-border);
+}
+
+.cpr-group-header td {
+  padding: 6px 12px;
+  font-size: 11px;
+  font-family: var(--cpr-audio-font-mono);
+}
+
+.cpr-group-header i.group-chevron {
+  color: var(--cpr-audio-cyan);
+  margin-right: 6px;
+  transition: transform 0.2s ease;
+}
+
+.cpr-queue-table td {
+  padding: 7px 12px;
+  border-bottom: 1px solid #191c28;
+  vertical-align: middle;
+}
+
+.cpr-track-row:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.cpr-pill {
+  font-family: var(--cpr-audio-font-mono);
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-weight: bold;
+  display: inline-block;
+}
+
+.cpr-pill-music { background: rgba(255, 0, 60, 0.15); color: var(--cpr-audio-red); border: 1px solid rgba(255, 0, 60, 0.4); }
+.cpr-pill-ambience { background: rgba(0, 240, 255, 0.15); color: var(--cpr-audio-cyan); border: 1px solid rgba(0, 240, 255, 0.4); }
+.cpr-pill-weather { background: rgba(255, 230, 0, 0.15); color: var(--cpr-audio-yellow); border: 1px solid rgba(255, 230, 0, 0.4); }
+.cpr-pill-sfx { background: rgba(0, 255, 102, 0.15); color: var(--cpr-audio-green); border: 1px solid rgba(0, 255, 102, 0.4); }
+
+/* =========================================================================
+   TAB 3: COMBAT & SCENE AUTOMATION RULES
+   ========================================================================= */
+
+.cpr-automation-status {
+  background: #0f121b;
+  border-left: 4px solid var(--cpr-audio-cyan);
+  border-radius: 4px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cpr-chip-group {
+  display: flex;
+  gap: 6px;
+  font-family: var(--cpr-audio-font-mono);
+  font-size: 10px;
+}
+
+.cpr-chip {
+  background: rgba(0, 240, 255, 0.1);
+  color: var(--cpr-audio-cyan);
+  padding: 2px 6px;
+  border-radius: 2px;
+  border: 1px solid rgba(0, 240, 255, 0.3);
+}
+
+.cpr-rules-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.cpr-rule-card {
+  background: var(--cpr-audio-card);
+  border: 1px solid var(--cpr-audio-border);
+  border-radius: 4px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cpr-rule-card.active-red { border-left: 4px solid var(--cpr-audio-red); }
+.cpr-rule-card.active-green { border-left: 4px solid var(--cpr-audio-green); }
+.cpr-rule-card.active-yellow { border-left: 4px solid var(--cpr-audio-yellow); }
+.cpr-rule-card.active-cyan { border-left: 4px solid var(--cpr-audio-cyan); }
+
+.cpr-rule-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cpr-rule-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+}
+
+.cpr-rule-badge {
+  font-size: 9px;
+  font-weight: 900;
+  padding: 2px 8px;
+  border-radius: 10px;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+}
+
+.cpr-badge-active { background: var(--cpr-audio-green); color: #000; }
+.cpr-badge-disabled { background: #333; color: #888; }
+
+.cpr-rule-body {
+  font-size: 11px;
+  color: var(--cpr-audio-text-muted);
+  line-height: 1.4;
+  background: #090b12;
+  border: 1px solid #1a1e2b;
+  border-radius: 3px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cpr-rule-row {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--cpr-audio-font-mono);
+}
+
+.cpr-rule-row span.k { color: var(--cpr-audio-text-muted); }
+.cpr-rule-row span.v { color: var(--cpr-audio-cyan); font-weight: bold; }
+
+.cpr-scene-box {
+  background: var(--cpr-audio-card);
+  border: 1px solid var(--cpr-audio-border);
+  border-radius: 4px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cpr-scene-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.cpr-scene-table th {
+  background: #090b12;
+  color: var(--cpr-audio-text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--cpr-audio-border);
+  text-align: left;
+}
+
+.cpr-scene-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #1a1e2b;
+  vertical-align: middle;
+}
+
+.cpr-btn-action {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.2) 0%, rgba(0, 150, 200, 0.3) 100%);
+  color: var(--cpr-audio-cyan);
+  border: 1px solid var(--cpr-audio-cyan);
+  border-radius: 3px;
+  padding: 4px 10px;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cpr-btn-action:hover {
+  background: rgba(0, 240, 255, 0.4);
+  box-shadow: 0 0 10px var(--cpr-audio-cyan-glow);
+}
